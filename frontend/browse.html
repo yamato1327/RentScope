@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RentScope — Browse Accommodation</title>
+
+  <!-- Page-scoped CSS -->
+  <link rel="stylesheet" href="browse.css"/>
+
+  <!-- Leaflet + Chart.js (CDN, no extra packages) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- soft background -->
+  <div class="bg-gradient"></div>
+
+  <div class="container">
+    <!-- Header (kept simple; uses your global style if present) -->
+    <header class="header">
+      <div class="header-content">
+        <a class="logo" href="index.html">
+          <div class="logo-icon">🔭</div>
+          <div class="logo-text">
+            <h1>RentScope</h1>
+            <p>Predict. Prepare. Stay secure.</p>
+          </div>
+        </a>
+        <div class="user-actions">
+          <a class="btn" href="login.html">Sign in</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <!-- Left column -->
+      <section class="left-panel">
+        <div class="card search-section fade-in">
+          <div class="card-header">
+            <h2>Search Perth Suburbs</h2>
+          </div>
+          <div class="card-content">
+            <div class="filter-bar">
+              <label>
+                Max rent: $<span id="rentVal">1200</span>
+                <input id="rent" type="range" min="300" max="2000" step="10" value="1200">
+              </label>
+
+              <label class="filter">
+                Rooms:
+                <select id="rooms">
+                  <option value="0">Any</option>
+                  <option value="1">1+</option>
+                  <option value="2">2+</option>
+                  <option value="3">3+</option>
+                  <option value="4">4+</option>
+                </select>
+              </label>
+
+              <label class="filter">
+                Type:
+                <select id="ptype">
+                  <option value="">Any</option>
+                  <option>Apartment</option>
+                  <option>House</option>
+                  <option>Townhouse</option>
+                </select>
+              </label>
+
+              <label class="filter push-right">
+                <input type="checkbox" id="showListings"> Show listings
+              </label>
+            </div>
+
+            <div class="search-container">
+              <input id="search" placeholder="Enter suburb name…">
+              <div id="suggestions" class="suggestions"></div>
+            </div>
+
+            <div id="map" class="map">
+              <div class="loading">
+                <div class="spinner"></div>
+                <span>Loading suburb boundaries…</span>
+              </div>
+            </div>
+
+            <div class="legend">
+              <h4>Rent Increase Legend</h4>
+              <div class="legend-row"><span class="chip red"></span> High Increase (&gt;10%)</div>
+              <div class="legend-row"><span class="chip orange"></span> Medium Increase (2–10%)</div>
+              <div class="legend-row"><span class="chip green"></span> Low Increase (&lt;2%)</div>
+            </div>
+
+            <div id="suburbInfo" class="suburb-info hidden slide-up">
+              <h3>Suburb Overview</h3>
+              <div class="info-grid">
+                <div class="info-card">
+                  <h4>Current Median Rent</h4>
+                  <p id="s-rent">$600/week</p>
+                </div>
+                <div class="info-card">
+                  <h4>Annual Change</h4>
+                  <p id="s-change">+8.2%</p>
+                </div>
+                <div class="info-card">
+                  <h4>Rental Yield</h4>
+                  <p id="s-yield">4.5%</p>
+                </div>
+                <div class="info-card">
+                  <h4>Vacancy Rate</h4>
+                  <p id="s-vacancy">1%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right column -->
+      <aside class="right-panel">
+        <div id="listingPanel" class="card listing-panel hidden fade-in">
+          <div class="card-content">
+            <button id="closeListing" class="close">×</button>
+            <img id="l-img" alt="">
+            <h3 id="l-title">Title</h3>
+            <p id="l-rent"></p>
+            <p id="l-rooms"></p>
+            <p id="l-type"></p>
+            <p id="l-desc"></p>
+            <a id="l-link" target="_blank" class="btn">View listing</a>
+          </div>
+        </div>
+
+        <div id="trendCard" class="card graph-section hidden fade-in">
+          <div class="card-content">
+            <div class="graph-header">
+              <h2>Rent Price Trends</h2>
+              <div class="time-tabs">
+                <button class="tab active" data-months="1">1M</button>
+                <button class="tab" data-months="3">3M</button>
+                <button class="tab" data-months="6">6M</button>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="trend"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div id="predCard" class="card prediction-section hidden fade-in">
+          <div class="card-content">
+            <h2>Rent Prediction</h2>
+            <div class="pred-grid">
+              <div id="pred-1m" class="pred-card hidden">
+                <h3>1 Month Prediction</h3>
+                <div class="pct">+1.2%</div>
+                <p>Expected rent increase in the next month</p>
+                <h4>Key Factors</h4>
+                <ul>
+                  <li>Seasonal demand fluctuations</li>
+                  <li>Recent property listings</li>
+                  <li>Short-term market trends</li>
+                </ul>
+              </div>
+              <div id="pred-3m" class="pred-card hidden">
+                <h3>3 Month Prediction</h3>
+                <div class="pct">+3.5%</div>
+                <p>Expected rent increase in the next 3 months</p>
+                <h4>Key Factors</h4>
+                <ul>
+                  <li>University semester starting</li>
+                  <li>Economic indicators</li>
+                  <li>Medium-term market trends</li>
+                </ul>
+              </div>
+              <div id="pred-6m" class="pred-card hidden">
+                <h3>6 Month Prediction</h3>
+                <div class="pct">+5.8%</div>
+                <p>Expected rent increase in the next 6 months</p>
+                <h4>Key Factors</h4>
+                <ul>
+                  <li>Population growth in the area</li>
+                  <li>New infrastructure projects</li>
+                  <li>Low vacancy rates</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="footer">
+      <span>🔭</span> Designed for WA renters. Demo data only.
+    </footer>
+  </div>
+
+  <!-- Page-scoped JS (kept inline for 1-file portability; easy to extract later) -->
+  <script>
+    // ---------- Demo data (swap for API later) ----------
+    const suburbs = [
+      { name: "Perth",        lat: -31.9505, lng: 115.8605, rent: 600, change: 8.2, yield: 4.5, vacancy: 1.0 },
+      { name: "Northbridge",  lat: -31.9474, lng: 115.8590, rent: 580, change: 7.8, yield: 4.3, vacancy: 1.1 },
+      { name: "Leederville",  lat: -31.9363, lng: 115.8414, rent: 620, change: 8.5, yield: 4.6, vacancy: 0.9 },
+      { name: "Subiaco",      lat: -31.9482, lng: 115.8235, rent: 650, change: 9.1, yield: 4.8, vacancy: 0.8 },
+      { name: "Bull Creek",   lat: -32.0563, lng: 115.8610, rent: 580, change: 7.6, yield: 4.3, vacancy: 1.1 },
+      { name: "Canning Vale", lat: -32.0580, lng: 115.9190, rent: 530, change: 0.8, yield: 4.0, vacancy: 1.4 },
+      { name: "Applecross",   lat: -32.0094, lng: 115.8614, rent: 720, change:12.5, yield: 5.0, vacancy: 0.7 }
+    ];
+
+    const properties = [
+      { id:1, title:"Cozy 2BR in Bull Creek",  lat:-32.0565,lng:115.8609,rent:570, rooms:2, type:"Apartment", desc:"Bright 2-bedroom apartment close to shops and transport.", img:"https://picsum.photos/seed/house1/700/420", link:"#"},
+      { id:2, title:"Family Home – Canning Vale",lat:-32.0575,lng:115.9192,rent:680, rooms:4, type:"House",     desc:"Spacious 4-bedroom house with large backyard.",             img:"https://picsum.photos/seed/house2/700/420", link:"#"},
+      { id:3, title:"Modern 1BR – Perth CBD",  lat:-31.9500,lng:115.8600,rent:420, rooms:1, type:"Apartment", desc:"Compact 1-bedroom apartment — great for students.",       img:"https://picsum.photos/seed/house3/700/420", link:"#"},
+      { id:4, title:"Townhouse – Applecross",  lat:-32.0096,lng:115.8618,rent:820, rooms:3, type:"Townhouse", desc:"Renovated 3-bedroom townhouse near river precinct.",      img:"https://picsum.photos/seed/house4/700/420", link:"#"},
+      { id:5, title:"3BR – Subiaco",           lat:-31.9481,lng:115.8237,rent:760, rooms:3, type:"House",     desc:"Family home close to parks and cafes.",                   img:"https://picsum.photos/seed/house5/700/420", link:"#"},
+      { id:6, title:"Studio – Northbridge",    lat:-31.9476,lng:115.8591,rent:380, rooms:0, type:"Apartment", desc:"Studio near nightlife and transport.",                    img:"https://picsum.photos/seed/house6/700/420", link:"#"},
+      { id:7, title:"4BR – Applecross Riverside", lat:-32.0089,lng:115.8607,rent:1200, rooms:4, type:"House", desc:"Riverside home with stunning views.",                      img:"https://picsum.photos/seed/house7/700/420", link:"#"},
+      { id:8, title:"2BR – Leederville",       lat:-31.9361,lng:115.8416,rent:610, rooms:2, type:"Apartment", desc:"Two-bedroom apartment near cafes and light rail.",        img:"https://picsum.photos/seed/house8/700/420", link:"#"}
+    ];
+
+    // ---------- Map ----------
+    const map = L.map('map').setView([-31.95,115.86], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const rentalsLayer = L.layerGroup().addTo(map);
+    function colorFor(change){ return change>10?'#ff4d4d': change>=2?'#ffa64d':'#4dff4d' }
+
+    // Try live SLIP WFS; if blocked, draw mock squares near each suburb
+    const WFS = "https://services.slip.wa.gov.au/public/services/Administrative_Boundaries/WA_Administrative_Boundaries_Web_Mercator/MapServer/WFSServer?request=GetFeature&service=WFS&version=1.0.0&typeName=SLIP:locality_boundaries&outputFormat=application/json";
+    let suburbLayer;
+    (async function loadBoundaries(){
+      const loading = document.querySelector('.loading');
+      try{
+        const r = await fetch(WFS);
+        if(!r.ok) throw new Error('WFS blocked');
+        const gj = await r.json();
+        drawSuburbs(gj);
+      }catch(_){
+        // fallback mock polygons
+        drawSuburbs({type:"FeatureCollection",features:suburbs.map(s=>{
+          const d=0.015;
+          return {type:"Feature",properties:{name:s.name},
+            geometry:{type:"Polygon",coordinates:[[
+              [s.lng-d, s.lat-d/2],[s.lng-d, s.lat+d/2],[s.lng+d, s.lat+d/2],
+              [s.lng+d, s.lat-d/2],[s.lng-d, s.lat-d/2]
+            ]]}
+          }
+        })});
+      }finally{ if(loading) loading.remove(); }
+    })();
+
+    function getName(p){ return (p && (p.LOC_NAME||p.LOCALITY||p.NAME||p.name||p.Locality)) || "Unknown" }
+
+    function drawSuburbs(geo){
+      if(suburbLayer) suburbLayer.remove();
+      suburbLayer = L.geoJSON(geo,{
+        style: f=>{
+          const s = suburbs.find(x=>x.name.toLowerCase()===getName(f.properties).toLowerCase());
+          return {color:'#fff',weight:1,fillOpacity:.7,fillColor:s?colorFor(s.change):'#ccc', dashArray:'3'};
+        },
+        onEachFeature: (f,layer)=>{
+          const n = getName(f.properties);
+          const s = suburbs.find(x=>x.name.toLowerCase()===n.toLowerCase());
+          layer.bindPopup(`<b>${n}</b>${s?`<br>Median: $${s.rent}/wk<br>Annual: +${s.change}%`:"<br>No data"}`);
+          layer.on('click',()=>{
+            const c = layer.getBounds().getCenter();
+            map.setView(c, 13);
+            if(s) selectSuburb(s);
+          });
+        }
+      }).addTo(map);
+    }
+
+    // ---------- Filters / listings ----------
+    const rent = document.getElementById('rent');
+    const rentVal = document.getElementById('rentVal');
+    const rooms = document.getElementById('rooms');
+    const ptype = document.getElementById('ptype');
+    const showListings = document.getElementById('showListings');
+    rent.addEventListener('input',()=>{ rentVal.textContent = rent.value; if(showListings.checked) renderListings(); });
+    rooms.addEventListener('change',()=> showListings.checked && renderListings());
+    ptype.addEventListener('change',()=> showListings.checked && renderListings());
+    showListings.addEventListener('change',e=> e.target.checked ? (renderListings(), rentalsLayer.addTo(map)) : (rentalsLayer.clearLayers(), hideListing()));
+
+    function matches(p){
+      if(p.rent > +rent.value) return false;
+      const r = +rooms.value;
+      if(r>0){
+        if(r===1 && p.rooms===0) return false; // treat studio as under 1+
+        if(p.rooms < r) return false;
+      }
+      if(ptype.value && p.type !== ptype.value) return false;
+      return true;
+    }
+
+    function renderListings(){
+      rentalsLayer.clearLayers();
+      properties.forEach(p=>{
+        if(!matches(p)) return;
+        const m = L.marker([p.lat,p.lng]).addTo(rentalsLayer);
+        m.bindPopup(`<b>${p.title}</b><br>$${p.rent}/week<br>${p.rooms||'Studio'} rooms | ${p.type}`);
+        m.on('click',()=> showListing(p));
+      });
+    }
+
+    // ---------- Listing side panel ----------
+    const panel = document.getElementById('listingPanel');
+    const closeBtn = document.getElementById('closeListing');
+    function showListing(p){
+      document.getElementById('l-img').src = p.img;
+      document.getElementById('l-title').textContent = p.title;
+      document.getElementById('l-rent').textContent  = `Rent: $${p.rent}/week`;
+      document.getElementById('l-rooms').textContent = `Rooms: ${p.rooms||'Studio'}`;
+      document.getElementById('l-type').textContent  = `Type: ${p.type}`;
+      document.getElementById('l-desc').textContent  = p.desc;
+      document.getElementById('l-link').href         = p.link || '#';
+      panel.classList.remove('hidden');
+    }
+    function hideListing(){ panel.classList.add('hidden'); }
+    closeBtn.addEventListener('click', hideListing);
+
+    // ---------- Suburb selection ----------
+    const info = document.getElementById('suburbInfo');
+    function selectSuburb(s){
+      info.classList.remove('hidden');
+      document.getElementById('s-rent').textContent    = `$${s.rent}/week`;
+      document.getElementById('s-change').textContent  = `+${s.change}%`;
+      document.getElementById('s-yield').textContent   = `${s.yield}%`;
+      document.getElementById('s-vacancy').textContent = `${s.vacancy}%`;
+      showChartsFor(s);
+    }
+
+    // ---------- Search suggestions ----------
+    const search = document.getElementById('search');
+    const suggestions = document.getElementById('suggestions');
+    search.addEventListener('input', ()=>{
+      const q = search.value.trim().toLowerCase();
+      if(!q){ suggestions.innerHTML=''; suggestions.style.display='none'; return; }
+      const hits = suburbs.filter(s=>s.name.toLowerCase().includes(q)).slice(0,8);
+      suggestions.innerHTML = hits.map(h=>`<div class="suggestion">${h.name}</div>`).join('');
+      suggestions.style.display = hits.length ? 'block' : 'none';
+    });
+    suggestions.addEventListener('click', e=>{
+      if(!e.target.classList.contains('suggestion')) return;
+      const name = e.target.textContent;
+      search.value = name;
+      suggestions.style.display='none';
+      const s = suburbs.find(x=>x.name===name);
+      if(s){ map.setView([s.lat,s.lng], 13); selectSuburb(s); }
+    });
+
+    // ---------- Chart + predictions ----------
+    let chart;
+    const trendCard = document.getElementById('trendCard');
+    const predCard  = document.getElementById('predCard');
+    const tabs = [...document.querySelectorAll('.tab')];
+
+    function showChartsFor(s){
+      trendCard.classList.remove('hidden');
+      predCard.classList.remove('hidden');
+      setActiveMonths(1); // default
+      drawChart(1, s.rent);
+      showPred(1);
+    }
+
+    function monthsData(n, base){
+      // simple upward demo series; replace with real series later
+      const labels = ["Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul"].slice(0, 3*n>12?12:3*n);
+      const pts = [];
+      let v = 550;
+      for(let i=0;i<labels.length;i++){ v += 3 + (i>6?8:4); pts.push(v); }
+      const avg = Array(labels.length).fill(base||600);
+      return {labels, pts, avg};
+    }
+
+    function drawChart(months, base){
+      const ctx = document.getElementById('trend');
+      const {labels, pts, avg} = monthsData(months, base);
+      if(chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type:'line',
+        data:{
+          labels,
+          datasets:[
+            {label:'Median rent', data:pts, fill:true, tension:0.35},
+            {label:'Current median', data:avg, borderDash:[6,6]}
+          ]
+        },
+        options:{
+          plugins:{legend:{display:false}},
+          scales:{y:{beginAtZero:false, suggestedMin:540, suggestedMax:635}}
+        }
+      });
+    }
+
+    function setActiveMonths(m){
+      tabs.forEach(t=>t.classList.toggle('active', +t.dataset.months===m));
+    }
+    tabs.forEach(t=>{
+      t.addEventListener('click', ()=>{
+        const m = +t.dataset.months;
+        setActiveMonths(m);
+        const cur = document.getElementById('s-rent').textContent.replace(/\D/g,'')||600;
+        drawChart(m, +cur);
+        showPred(m);
+      });
+    });
+
+    function showPred(m){
+      document.getElementById('pred-1m').classList.toggle('hidden', m!==1);
+      document.getElementById('pred-3m').classList.toggle('hidden', m!==3);
+      document.getElementById('pred-6m').classList.toggle('hidden', m!==6);
+    }
+  </script>
+</body>
+</html>

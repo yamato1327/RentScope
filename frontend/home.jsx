@@ -238,7 +238,7 @@ function RentScopeHome() {
               </p>
               <div className="mt-6 flex items-center gap-3">
                 <a href="dashboard.html"><Button className="rounded-xl">Open dashboard</Button></a>
-                <a href="#accommodation"><Button className="rounded-xl bg-sky-600 text-white hover:bg-sky-700">Browse accommodation</Button></a>
+                <a href="browse.html"><Button className="rounded-xl bg-sky-600 text-white hover:bg-sky-700">Browse accommodation</Button></a>
               </div>
             </div>
 
