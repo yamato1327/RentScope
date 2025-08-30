@@ -5,136 +5,56 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>RentScope – Dashboard</title>
 
-  <!-- Inline modern styling for the whole dashboard -->
-  <style>
-    /* ================================
-       RentScope Modern Dashboard Theme
-       ================================ */
+  <!-- Your existing base styles here -->
+  <link rel="stylesheet" href="style.css" />
 
-    :root{
-      --bg:#f7f7f4; --panel:#fff; --ink:#0f172a; --muted:#6b7280; --line:rgba(15,23,42,.08);
-      --primary:#2563eb; --success:#16a34a; --warn:#d97706;
-      --radius-lg:16px; --radius-xl:20px;
-      --shadow-sm:0 6px 16px rgba(0,0,0,.06);
-      --shadow-md:0 12px 30px rgba(0,0,0,.08);
-    }
-    html,body{height:100%}
-    body{margin:0;color:var(--ink);background:var(--bg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
-
-    /* Top nav */
-    .navbar{background:#fff;height:60px;display:flex;gap:16px;align-items:center;padding:0 20px;box-shadow:var(--shadow-sm);position:sticky;top:0;z-index:10}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
-    .brand .spark{width:18px;height:18px;border-radius:6px;background:linear-gradient(135deg,#22c55e,#2563eb)}
-
-    /* Banner */
-    .hero{background:linear-gradient(160deg,#eaf2ff,#f0faef 60%);border-bottom:1px solid var(--line);padding:28px 24px 14px}
-    .hero h1{margin:0 0 6px;font-size:34px;letter-spacing:.2px}
-    .hero .sub{color:var(--muted)}
-
-    /* Layout grid */
-    .dash{max-width:1200px;margin:0 auto;padding:20px;display:grid;gap:20px;
-      grid-template-columns:360px 1fr;
-      grid-template-areas:
-        "inputs kpis"
-        "inputs chart"
-        "drivers info"
-        "alts alts";
-    }
-    @media (max-width:1024px){
-      .dash{grid-template-columns:1fr;grid-template-areas:"kpis" "inputs" "chart" "drivers" "info" "alts";}
-    }
-
-    /* Cards */
-    .card{background:var(--panel);border-radius:var(--radius-xl);box-shadow:var(--shadow-md);padding:18px}
-    .card h3{margin:0 0 12px;font-size:16px}
-    .muted{color:var(--muted)} .small{font-size:12px}
-
-    /* Inputs panel */
-    .inputs{grid-area:inputs;position:sticky;top:88px}
-    .field{display:grid;gap:8px;margin-bottom:14px}
-    .field label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-    .row{display:grid;gap:12px;grid-template-columns:1fr 1fr}
-    .inputs input[type="text"],.inputs input[type="number"],.inputs input[type="date"],.inputs select{
-      width:100%;appearance:none;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;font-size:14px
-    }
-    .slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:#eceff3;outline:none}
-    .slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:999px;background:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.25);cursor:pointer}
-
-    /* KPI tiles */
-    .kpis{grid-area:kpis;display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
-    .kpi{background:#fff;border-radius:18px;padding:16px 18px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px}
-    .kpi .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-    .kpi .value{font-size:22px;font-weight:700}
-
-    /* Chart */
-    .chart{grid-area:chart;padding:16px 18px}
-    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#f1f5ff;color:#1747b7;font-size:12px}
-    .plot{height:320px}
-    @media (max-width:560px){.plot{height:260px}}
-    .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
-    .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
-    .blue{background:#2563eb}.green{background:#16a34a}.orange{background:#ea8c00}.gray{background:#94a3b8}
-
-    /* Drivers + Affordability */
-    .drivers{grid-area:drivers;display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media (max-width:1024px){.drivers{grid-template-columns:1fr}}
-    /* Info row */
-    .info{grid-area:info;display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
-    @media (max-width:1024px){.info{grid-template-columns:1fr}}
-    /* Alternatives */
-    .alts{grid-area:alts}
-    .altCard{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px;border-radius:18px;background:#fff;box-shadow:var(--shadow-sm)}
-    .altMeta{display:flex;flex-direction:column;gap:6px}
-    .altTitle{font-weight:700;font-size:18px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:#f9fafb;color:var(--ink);cursor:pointer}
-    .btn.primary{background:var(--ink);color:#fff;border-color:transparent}
-    .btn:hover{filter:brightness(.98)}
-  </style>
+  <!-- Add the new dashboard styles AFTER your base CSS -->
+  <link rel="stylesheet" href="dashboard.css" />
 </head>
 <body>
-  <!-- Top bar (optional) -->
+  <!-- Keep your existing navbar exactly as-is -->
   <header class="navbar">
     <div class="brand"><span class="spark"></span>RentScope</div>
-    <nav aria-label="main"></nav>
-    <button id="logoutBtn" class="btn" style="margin-left:auto">Logout</button>
+    <nav></nav>
+    <button id="logoutBtn" class="primary-btn" style="margin-left:auto">Logout</button>
   </header>
 
-  <!-- Welcome / context -->
-  <section class="hero">
-    <h1 id="greeting">Welcome</h1>
-    <div class="sub small">Latest update for <span id="suburbNameText">Nedlands</span>: No strong deviation detected. Average increase pattern 5% every 12 months.</div>
+  <!-- Keep your existing welcome/hero block -->
+  <section class="hero" style="background:linear-gradient(160deg,#eef6ff,#f4fbef 60%);border-bottom:1px solid rgba(0,0,0,.06);padding:28px 24px 14px;">
+    <h1 id="greeting" style="margin:0 0 6px;font-size:34px;letter-spacing:.2px">Welcome</h1>
+    <div class="small muted">Latest update for <span id="suburbNameText">Nedlands</span>: No strong deviation detected. Average increase pattern 5% every 12 months.</div>
   </section>
 
   <!-- Main grid -->
-  <main class="dash">
-    <!-- Inputs -->
-    <section class="card inputs" id="inputsCard">
+  <main class="dashboard-grid">
+    <!-- Left: Inputs -->
+    <section class="dashboard-card inputs-card" id="inputsCard">
       <h3>Your inputs</h3>
 
-      <div class="field">
+      <div>
         <label for="suburb">Suburb</label>
         <select id="suburb">
           <option>Nedlands</option>
         </select>
       </div>
 
-      <div class="row">
-        <div class="field">
+      <div class="inputs-row">
+        <div>
           <label for="weeklyRent">Weekly rent ($)</label>
           <input id="weeklyRent" type="number" value="500" />
         </div>
-        <div class="field">
+        <div>
           <label for="weeklyIncome">Weekly income ($)</label>
           <input id="weeklyIncome" type="number" value="1500" />
         </div>
       </div>
 
-      <div class="row">
-        <div class="field">
+      <div class="inputs-row">
+        <div>
           <label for="leaseStart">Lease start</label>
           <input id="leaseStart" type="date" />
         </div>
-        <div class="field">
+        <div>
           <label for="landlordType">Landlord type</label>
           <select id="landlordType">
             <option>Agency</option>
@@ -143,100 +63,78 @@
         </div>
       </div>
 
-      <div class="field">
+      <div class="range-wrap">
         <label for="threshold">Overpay threshold (<span id="thresholdPct">10%</span>)</label>
-        <input id="threshold" class="slider" type="range" min="0" max="30" value="10" />
+        <input id="threshold" type="range" min="0" max="30" value="10" />
       </div>
 
-      <button id="seeRecs" class="btn primary" type="button">See recommendations</button>
+      <button id="seeRecs" type="button" class="primary-btn">See recommendations</button>
     </section>
 
-    <!-- KPIs -->
-    <section class="kpis">
-      <div class="kpi">
-        <div class="label">Next increase</div>
-        <div id="kpiNext" class="value">01/10/2025</div>
-        <div class="small muted">Based on 12-month periodicity.</div>
-      </div>
-      <div class="kpi">
-        <div class="label">Projected weekly rent</div>
-        <div id="kpiProjected" class="value">$525.00</div>
-        <div class="small muted">Assuming ~5% step.</div>
-      </div>
-      <div class="kpi">
-        <div class="label">Confidence</div>
-        <div id="kpiConfidence" class="value">77%</div>
-        <div class="small muted">Volatility affects confidence.</div>
-      </div>
-    </section>
-
-    <!-- Forecast -->
-    <section class="card chart" id="forecastCard">
-      <div class="badge">Forecast (18 months)</div>
-      <div class="plot">
-        <!-- Your chart lib should draw into this canvas -->
-        <canvas id="forecastCanvas" width="900" height="320"></canvas>
-      </div>
-      <div class="legend">
-        <span><span class="dot green"></span> Affordability ratio</span>
-        <span><span class="dot blue"></span> Weekly rent ($)</span>
-        <span class="small muted">Red dashed = 30% stress</span>
-      </div>
-    </section>
-
-    <!-- Drivers / Affordability -->
-    <section class="drivers">
-      <div class="card" id="affordCard">
-        <h3>Affordability overview</h3>
-        <div id="affordGauge" style="height:160px"></div>
-        <p class="small muted">Rent as % of income (goal below 30%).</p>
-      </div>
-
-      <div class="card" id="driversCard">
-        <h3>Risk drivers</h3>
-        <div id="driversPie" style="height:160px"></div>
-        <div class="legend">
-          <span><span class="dot blue"></span> Rent burden</span>
-          <span><span class="dot green"></span> Turnover</span>
-          <span><span class="dot orange"></span> Eviction pressure</span>
-          <span><span class="dot gray"></span> Landlord type</span>
+    <!-- Right: KPIs + Forecast + Info -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <!-- KPIs -->
+      <section class="kpi-row">
+        <div class="kpi-card">
+          <div class="label">Next increase</div>
+          <div id="kpiNext" class="value">01/10/2025</div>
+          <div class="note">Based on 12-month periodicity.</div>
         </div>
-      </div>
-    </section>
+        <div class="kpi-card">
+          <div class="label">Projected weekly rent</div>
+          <div id="kpiProjected" class="value">$525.00</div>
+          <div class="note">Assuming ~5% step.</div>
+        </div>
+        <div class="kpi-card">
+          <div class="label">Confidence</div>
+          <div id="kpiConfidence" class="value">77%</div>
+          <div class="note">Volatility affects confidence.</div>
+        </div>
+      </section>
 
-    <!-- Trend / Benchmark / Risk -->
-    <section class="info">
-      <div class="card" id="trendCard">
-        <h3>Trend alert</h3>
-        <p class="muted" id="trendNote">No strong deviation detected.</p>
-      </div>
-      <div class="card" id="benchCard">
-        <h3>Benchmark</h3>
-        <p class="muted" id="benchNote">Suburb median: $800. Negotiate: $760–$840.</p>
-      </div>
-      <div class="card" id="riskCard">
-        <h3>Eviction risk</h3>
-        <p class="muted" id="riskNote">Band: moderate. Score 0.46.</p>
-      </div>
-    </section>
+      <!-- Forecast -->
+      <section class="dashboard-card chart-card" id="forecastCard">
+        <h3>Forecast (18 months)</h3>
+        <canvas id="forecastCanvas" width="900" height="320"></canvas>
+        <div class="chart-legend">
+          <span><span class="dot dot-green"></span> Affordability ratio</span>
+          <span><span class="dot dot-blue"></span> Weekly rent ($)</span>
+          <span class="small muted">Red dashed = 30% stress</span>
+        </div>
+      </section>
 
-    <!-- Alternatives -->
-    <section class="alts">
-      <div class="card altCard">
-        <div class="altMeta">
+      <!-- Info row -->
+      <section class="info-grid">
+        <div class="dashboard-card" id="trendCard">
+          <h3>Trend alert</h3>
+          <p class="muted" id="trendNote">No strong deviation detected.</p>
+        </div>
+        <div class="dashboard-card" id="benchCard">
+          <h3>Benchmark</h3>
+          <p class="muted" id="benchNote">Suburb median: $800. Negotiate: $760–$840.</p>
+        </div>
+        <div class="dashboard-card" id="riskCard">
+          <h3>Eviction risk</h3>
+          <p class="muted" id="riskNote">Band: moderate. Score 0.46.</p>
+        </div>
+      </section>
+
+      <!-- Alternatives -->
+      <section class="dashboard-card alt-card">
+        <div class="alt-meta">
           <div class="small muted">apartment · 2 bed</div>
-          <div class="altTitle">2BR Apartment near UWA</div>
+          <div class="alt-title">2BR Apartment near UWA</div>
           <div class="small muted">Nedlands · 7 km to CBD · Near university</div>
         </div>
         <div style="display:flex;gap:12px;align-items:center">
           <strong id="altPrice">$720/wk</strong>
-          <button class="btn" type="button">View</button>
+          <button class="primary-btn" type="button" style="background:#fff;color:#111827;border:1px solid #e5e7eb">View</button>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 
-  <!-- Your existing app.js -->
+  <!-- Your existing JS (no changes required) -->
   <script src="app.js"></script>
 </body>
 </html>

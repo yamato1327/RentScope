@@ -1,0 +1,148 @@
+/* ================================
+   RentScope – Dashboard Refinements
+   Matches the existing home-page style
+   ================================ */
+
+/* Layout grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+}
+
+/* Cards (consistent with home) */
+.dashboard-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 20px;
+}
+.dashboard-card h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Inputs panel */
+.inputs-card { display: flex; flex-direction: column; gap: 16px; }
+.inputs-card label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;             /* muted grey */
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.inputs-card input,
+.inputs-card select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+}
+.inputs-row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 560px){ .inputs-row { grid-template-columns: 1fr; } }
+
+.inputs-card .range-wrap { display: grid; gap: 6px; }
+.inputs-card input[type="range"] {
+  width: 100%;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: #eceff3;
+  outline: none;
+}
+.inputs-card input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 999px; background: #111827;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  cursor: pointer;
+}
+
+.primary-btn {
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: #111827;       /* same dark button tone as home */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.primary-btn:hover { opacity: .92; }
+
+/* KPI row */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  gap: 16px;
+}
+@media (max-width: 900px){ .kpi-row { grid-template-columns: 1fr; } }
+
+.kpi-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.kpi-card .label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.kpi-card .value {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.kpi-card .note {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Forecast / chart */
+.chart-card { padding: 20px; }
+.chart-card .subtitle {
+  font-size: 13px; color: #6b7280; margin-top: 8px;
+}
+.chart-legend {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #6b7280;
+  display: flex; gap: 14px; flex-wrap: wrap;
+}
+.dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+.dot-blue { background: #2563eb; }
+.dot-green { background: #16a34a; }
+.dot-red { background: #ef4444; }
+
+/* Info cards (trend / benchmark / risk / alternatives) */
+.info-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 1024px){ .info-grid { grid-template-columns: 1fr; } }
+
+.alt-card {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 18px;
+  border-radius: 16px; background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.alt-meta { display: flex; flex-direction: column; gap: 6px; }
+.alt-title { font-weight: 700; font-size: 18px; }
+.muted { color: #6b7280; }
+.small { font-size: 12px; }
