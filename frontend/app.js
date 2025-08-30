@@ -1,30 +1,76 @@
 // ---- Config ----
 // const API_BASE = "http://localhost:4000"; // change to tunnel/Render URL when sharing
 const API_BASE = "https://rentscope-backend.onrender.com";
+
 // ---- Token helpers ----
 function saveToken(t){ localStorage.setItem("token", t) }
 function getToken(){ return localStorage.getItem("token") }
 function isAuthed(){ return !!getToken() }
-function logout(){ localStorage.removeItem("token"); location.href = "home.html" }
+function logout(){
+  localStorage.removeItem("token");
+  // keep profile so name can persist across sessions if you want; remove if not desired:
+  // localStorage.removeItem("profile");
+  location.href = "index.html";
+}
+
+// Gate non-public pages
 function requireAuth(){
   if(!isAuthed()){
     const path = location.pathname;
-    // Public pages allowed without auth:
-    const publicPages = ["home.html","index.html","signup.html","/"];
-    const isPublic = publicPages.some(p => path.endsWith(p));
-    if(!isPublic) location.href = "index.html";
+    const publicPages = ["/", "index.html", "login.html", "signup.html"];
+    const isPublic = publicPages.some(p => path.endsWith(p) || path === p);
+    if(!isPublic) location.href = "login.html";
   }
 }
 
-// ---- Home page ----
-const ctaStart = document.getElementById("ctaGetStarted");
-if (ctaStart){
-  ctaStart.addEventListener("click", ()=>{
-    if (isAuthed()) location.href = "start.html";
-    else location.href = "index.html";
-  });
-}
-const ctaBrowse = document.getElementById("ctaBrowse"); // link only
+// ---- Home page (index.html) navbar + CTA gating ----
+(function(){
+  const signInLink = document.getElementById("navSignIn");
+  const navUser = document.getElementById("navUser");
+  const navLogout = document.getElementById("navLogout");
+  const ctaStart = document.getElementById("ctaGetStarted");
+  const ctaBrowse = document.getElementById("ctaBrowse");
+
+  // Show greeting if logged in
+  if (navUser && isAuthed()){
+    let displayName = "User";
+    try {
+      const prof = JSON.parse(localStorage.getItem("profile") || "{}");
+      if (prof.displayName) displayName = prof.displayName;
+    } catch {}
+    navUser.textContent = `Hi, ${displayName}`;
+    navUser.style.display = "inline";
+    if (signInLink) signInLink.style.display = "none";
+    if (navLogout) {
+      navLogout.style.display = "inline";
+      navLogout.addEventListener("click", logout);
+    }
+  }
+
+  // Gate "Get started" behind login; after login return to Home
+  if (ctaStart){
+    ctaStart.addEventListener("click", (e)=>{
+      e.preventDefault();
+      if (isAuthed()){
+        // You can send to the choice page or keep them on Home
+        location.href = "start.html";
+      } else {
+        location.href = "login.html?next=index.html";
+      }
+    });
+  }
+
+  // Gate "Browse accommodation" behind login; if logged out, go to login then back to Home
+  if (ctaBrowse){
+    ctaBrowse.addEventListener("click", (e)=>{
+      if (!isAuthed()){
+        e.preventDefault();
+        location.href = "login.html?next=index.html";
+      }
+      // if authed, link proceeds to predict.html?mode=market
+    });
+  }
+})();
 
 // ---- Login page ----
 const liForm = document.getElementById("loginForm");
@@ -40,10 +86,34 @@ if (liForm){
     });
     const data = await res.json();
     document.getElementById("liMsg").textContent = data.error || "Logged in!";
-    if (data.token){ saveToken(data.token); location.href = "start.html"; }
+
+    if (data.token){
+      saveToken(data.token);
+      // Try to capture a display name
+      let displayName = "User";
+      if (data.user && (data.user.displayName || data.user.name || data.user.email)){
+        displayName = data.user.displayName || data.user.name || (data.user.email||"").split("@")[0] || "User";
+      } else if (email) {
+        displayName = email.split("@")[0] || "User";
+      }
+      localStorage.setItem("profile", JSON.stringify({ displayName }));
+
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next") || "index.html";
+      location.href = next;
+    }
   });
+
   const demoBtn = document.getElementById("demoBtn");
-  if (demoBtn){ demoBtn.addEventListener("click", ()=>{ saveToken("demo"); location.href="start.html"; }); }
+  if (demoBtn){
+    demoBtn.addEventListener("click", ()=>{
+      saveToken("demo");
+      localStorage.setItem("profile", JSON.stringify({ displayName: "Demo" }));
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next") || "index.html";
+      location.href = next;
+    });
+  }
 }
 
 // ---- Signup page ----
@@ -60,7 +130,21 @@ if (suForm){
     });
     const data = await res.json();
     document.getElementById("suMsg").textContent = data.error || "Account created!";
-    if (data.token){ saveToken(data.token); location.href = "start.html"; }
+
+    if (data.token){
+      saveToken(data.token);
+      let displayName = "User";
+      if (data.user && (data.user.displayName || data.user.name || data.user.email)){
+        displayName = data.user.displayName || data.user.name || (data.user.email||"").split("@")[0] || "User";
+      } else if (email) {
+        displayName = email.split("@")[0] || "User";
+      }
+      localStorage.setItem("profile", JSON.stringify({ displayName }));
+
+      const params = new URLSearchParams(location.search);
+      const next = params.get("next") || "index.html";
+      location.href = next;
+    }
   });
 }
 
