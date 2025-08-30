@@ -1,0 +1,22 @@
+/* ===== Dashboard vanilla animation helpers ===== */
+.rs-float-in { opacity:0; transform:translateY(6px); animation:rsFloatIn .35s ease forwards; }
+@keyframes rsFloatIn { to { opacity:1; transform:translateY(0); } }
+
+.rs-badge { font-size:.75rem; color:#6b7280; text-transform:uppercase; letter-spacing:.06em; }
+.rs-card  { border-radius:1.5rem; border:1px solid rgba(0,0,0,.08); background:rgba(255,255,255,.7);
+            -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); box-shadow:0 1px 2px rgba(0,0,0,.04); }
+
+.rs-dot { height:8px; width:24px; border-radius:999px; background:#d4d4d4; transition:background .2s ease; }
+.rs-dot.rs-active { background:#0a0a0a; }
+
+/* sticky/blurred header */
+.rs-header { position:sticky; top:0; z-index:40; background:rgba(255,255,255,.7);
+             -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border-bottom:1px solid rgba(0,0,0,.08); }
+
+/* subtle radial background like your screenshots */
+.rs-bg {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(59,130,246,.14), transparent 60%),
+    radial-gradient(900px 500px at 90% 110%, rgba(16,185,129,.14), transparent 60%);
+}

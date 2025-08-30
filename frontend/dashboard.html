@@ -1,72 +1,38 @@
-<!-- dashboard.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>Dashboard — RentScope</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="style.css" rel="stylesheet" />
-  <link href="dashboard.css" rel="stylesheet" />
-  <script defer src="app.js"></script>
+
+  <!-- Tailwind (utility classes used by the JSX layout) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Your existing global styles -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+
+  <!-- Dashboard-specific helpers (vanilla CSS animations) -->
+  <link rel="stylesheet" href="dash.css" />
 </head>
-<body data-page="dashboard">
-  <header class="nav">
-    <div class="container nav__inner">
-      <a class="brand" href="index.html">RentScope</a>
-      <nav class="nav__links">
-        <a href="index.html">Home</a>
-        <a id="nav-dashboard" href="dashboard.html" class="active">Dashboard</a>
-        <button id="nav-logout" class="btn btn--ghost">Logout</button>
-      </nav>
-    </div>
-  </header>
+<body data-page="dashboard" class="bg-neutral-50 text-neutral-900">
+  <div id="root"></div>
 
-  <main class="container dash">
-    <section class="dash__header">
-      <div>
-        <h1>Welcome, <span id="greeting">…</span></h1>
-        <p class="muted">Here are your key insights.</p>
-      </div>
-      <div class="dash__actions">
-        <a class="btn btn--primary" href="predict.html">Make a prediction</a>
-      </div>
-    </section>
+  <!-- React 18 via CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-    <section class="grid kpis">
-      <div class="card kpi">
-        <div class="kpi__label muted">Active Listings</div>
-        <div class="kpi__value" id="kpi-listings">—</div>
-      </div>
-      <div class="card kpi">
-        <div class="kpi__label muted">Avg. Rent (AU$)</div>
-        <div class="kpi__value" id="kpi-avg-rent">—</div>
-      </div>
-      <div class="card kpi">
-        <div class="kpi__label muted">Predictions Run</div>
-        <div class="kpi__value" id="kpi-preds">—</div>
-      </div>
-    </section>
+  <!-- Babel so we can load JSX directly -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <section class="grid two">
-      <div class="card">
-        <h3 class="muted">Trend</h3>
-        <canvas id="chart" width="600" height="280" aria-label="Simple chart placeholder"></canvas>
-        <p class="small muted">Static placeholder — replace with your charting if needed.</p>
-      </div>
-      <div class="card">
-        <h3 class="muted">Account</h3>
-        <div class="info">
-          <div><span class="label muted">Name</span><span id="info-name">—</span></div>
-          <div><span class="label muted">Email</span><span id="info-email">—</span></div>
-          <div class="row gap">
-            <a class="btn btn--ghost" href="profile.html">Edit profile (optional)</a>
-            <button class="btn btn--danger" id="btn-logout">Logout</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+  <!-- Your existing app script (auth, /me, etc.) -->
+  <script defer src="app.js"></script>
 
-  <div id="toast" class="toast"></div>
+  <!-- Dashboard JSX -->
+  <script type="text/babel" src="dashboard.jsx"></script>
+  <script type="text/babel">
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(RentScopeDashboard));
+  </script>
 </body>
 </html>
