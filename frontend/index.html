@@ -3,36 +3,49 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RentScope</title>
+  <title>RentScope — Home</title>
 
-  <!-- Tailwind for utility classes used by the JSX layout -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Your existing global styles -->
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="dashboard.css" />
-
-  <!-- Home-page specific (vanilla CSS animations & helpers) -->
-  <link rel="stylesheet" href="home.css" />
+  <script defer src="app.js"></script>
 </head>
-<body class="bg-neutral-50 text-neutral-900">
-  <div id="root"></div>
+<body>
+  <!-- Glass header shared across pages -->
+  <header class="nav header">
+    <div class="container nav__inner header-content">
+      <a class="brand logo" href="index.html">
+        <div class="logo-icon">🔭</div>
+        <div class="logo-text">
+          <h1>RentScope</h1>
+          <p>Predict. Prepare. Stay secure.</p>
+        </div>
+      </a>
 
-  <!-- React 18 via CDN -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+      <!-- Right side: controlled by app.js -->
+      <div class="user-actions">
+        <div id="header-auth">
+          <a id="header-signin" class="btn" href="login.html" data-link>Sign in</a>
+          <a class="btn btn--primary" href="signup.html" data-link>Sign up</a>
+        </div>
+        <div id="header-user" class="hidden">
+          <span class="hello">Hi, <strong id="header-username" data-hello>there</strong></span>
+          <button id="header-signout" class="btn btn--ghost">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </header>
 
-  <!-- Babel to run JSX directly (no build step required) -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <main class="container" style="padding:24px 0;">
+    <section class="card" style="padding:24px;">
+      <h2>Welcome <span data-hello>there</span>!</h2>
+      <p class="muted">Explore rent trends and browse accommodation across Perth.</p>
+      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap">
+        <a class="btn btn--primary" href="browse.html">Browse accommodation</a>
+        <a class="btn" href="predict.html">Start a prediction</a>
+      </div>
+    </section>
+  </main>
 
-  <!-- Your existing app script (auth gating, etc.) still loads -->
-  <script src="app.js"></script>
-
-  <!-- Home page component -->
-  <script type="text/babel" src="home.jsx"></script>
-  <script type="text/babel">
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(RentScopeHome));
-  </script>
+  <div id="toast" class="toast"></div>
 </body>
 </html>

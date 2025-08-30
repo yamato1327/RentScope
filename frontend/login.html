@@ -8,16 +8,23 @@
   <link href="style.css" rel="stylesheet" />
   <script defer src="app.js"></script>
 </head>
-<body data-page="login">
-  <header class="nav">
-    <div class="container nav__inner">
-      <a class="brand" href="index.html">RentScope</a>
-      <nav class="nav__links">
-        <a href="index.html">Home</a>
-        <a id="nav-dashboard" href="dashboard.html" class="hidden">Dashboard</a>
-        <a id="nav-login" href="login.html" class="active">Login</a>
-        <a id="nav-signup" href="signup.html" class="btn btn--primary">Sign up</a>
-      </nav>
+<body>
+  <header class="nav header">
+    <div class="container nav__inner header-content">
+      <a class="brand logo" href="index.html">
+        <div class="logo-icon">🔭</div>
+        <div class="logo-text"><h1>RentScope</h1><p>Predict. Prepare. Stay secure.</p></div>
+      </a>
+      <div class="user-actions">
+        <div id="header-auth">
+          <a id="header-signin" class="btn active" href="login.html" data-link>Login</a>
+          <a class="btn btn--primary" href="signup.html" data-link>Sign up</a>
+        </div>
+        <div id="header-user" class="hidden">
+          <span>Hi, <strong id="header-username" data-hello>there</strong></span>
+          <button id="header-signout" class="btn btn--ghost">Sign out</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -35,8 +42,6 @@
         </label>
         <button class="btn btn--primary" type="submit">Log in</button>
       </form>
-
-      <p class="muted small">No account? <a href="signup.html">Create one</a>.</p>
     </div>
   </main>
 
