@@ -1,52 +1,38 @@
-<!-- index.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>RentScope — Smart Rentals</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="style.css" rel="stylesheet" />
-  <script defer src="app.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RentScope</title>
+
+  <!-- Tailwind for utility classes used by the JSX layout -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Your existing global styles -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+
+  <!-- Home-page specific (vanilla CSS animations & helpers) -->
+  <link rel="stylesheet" href="home.css" />
 </head>
-<body data-page="home">
-  <header class="nav">
-    <div class="container nav__inner">
-      <a class="brand" href="index.html">RentScope</a>
-      <nav class="nav__links">
-        <a href="index.html">Home</a>
-        <a id="nav-dashboard" href="dashboard.html" class="hidden">Dashboard</a>
-        <a id="nav-login" href="login.html">Login</a>
-        <a id="nav-signup" href="signup.html" class="btn btn--primary">Sign up</a>
-        <button id="nav-logout" class="btn btn--ghost hidden">Logout</button>
-      </nav>
-    </div>
-  </header>
+<body class="bg-neutral-50 text-neutral-900">
+  <div id="root"></div>
 
-  <section class="hero">
-    <div class="container hero__inner">
-      <div class="hero__text">
-        <h1>Find rentals with confidence.</h1>
-        <p class="muted">Clean UI, simple insights, and predictions to guide your next move.</p>
-        <div class="hero__cta">
-          <a class="btn btn--primary" href="signup.html">Get started</a>
-          <a class="btn btn--ghost" href="login.html">I already have an account</a>
-        </div>
-      </div>
-      <div class="hero__panel card">
-        <h3 class="muted">Why RentScope?</h3>
-        <ul class="list">
-          <li>Simple, secure sign in</li>
-          <li>Clear KPIs and charts</li>
-          <li>Fast experience on any device</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+  <!-- React 18 via CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-  <footer class="footer">
-    <div class="container muted">© <span id="year"></span> RentScope</div>
-  </footer>
+  <!-- Babel to run JSX directly (no build step required) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <div id="toast" class="toast"></div>
+  <!-- Your existing app script (auth gating, etc.) still loads -->
+  <script src="app.js"></script>
+
+  <!-- Home page component -->
+  <script type="text/babel" src="home.jsx"></script>
+  <script type="text/babel">
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(RentScopeHome));
+  </script>
 </body>
 </html>
