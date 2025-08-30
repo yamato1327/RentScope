@@ -166,12 +166,22 @@ function RentScopeHome() {
   const [index, setIndex] = useState(0);
   const [intro, setIntro] = useState(true);
 
-  /* hide intro on scroll */
   useEffect(() => {
-    const onScroll = () => { if (window.scrollY > 30) setIntro(false); };
+    // Hide after 2.5 seconds OR when user scrolls
+    const timer = setTimeout(() => setIntro(false), 2500);
+
+    const onScroll = () => {
+        setIntro(false);
+        clearTimeout(timer);
+    };
+
     window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+        clearTimeout(timer);
+        window.removeEventListener("scroll", onScroll);
+    };
   }, []);
+
 
   /* auto-rotate slides */
   useEffect(() => {

@@ -2,7 +2,7 @@
 
 /* Intro overlay fade-out (one-time) */
 .rs-fade-out {
-  animation: rsFadeOut 0.5s ease forwards;
+  animation: rsFadeOut 1,2s ease forwards;
 }
 @keyframes rsFadeOut {
   to { opacity: 0; visibility: hidden; }
