@@ -1,75 +1,371 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Dashboard • RentScope</title>
+  <title>RentScope • Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="./logo.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background:#f7f7f5; }
+    .card { border-radius: 1.25rem; border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.7); backdrop-filter: blur(6px); }
+    .btn { border-radius: 0.75rem; padding: 0.5rem 0.75rem; background:#111827; color:#fff; }
+    .btn:hover { background:#0f172a; }
+    .chip { border-radius: 0.75rem; padding: 0.25rem 0.5rem; }
+    /* tiny canvas helpers */
+    canvas { image-rendering: -webkit-optimize-contrast; }
+  </style>
 </head>
 <body>
-  <nav class="site-nav">
-    <div class="nav-left">
-      <div class="brand">
-        <img src="./logo.png" alt="RentScope logo" />
-        <span class="brand-name">RentScope</span>
-      </div>
-      <ul class="nav-links">
-        <li><a class="active" href="dashboard.html">Dashboard</a></li>
-        <li><a href="predict.html">Accommodation</a></li>
-      </ul>
-    </div>
-    <div class="nav-right">
-      <button id="logoutBtn" class="btn btn-ghost small">Logout</button>
-    </div>
-  </nav>
+  <noscript>This page requires JavaScript.</noscript>
 
-  <div class="layout">
-    <section class="panel">
-      <h3 id="welcomeTitle">Welcome</h3>
-      <p class="muted" id="welcomeSub">Personalised view</p>
+  <div id="app"></div>
 
-      <div class="grid-2">
-        <div><label>Display name</label><input id="displayName" placeholder="Alex" /></div>
-        <div><label>Preferred suburb</label><input id="prefSuburb" placeholder="Nedlands" /></div>
-      </div>
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-      <div class="tiles">
-        <div class="tile"><div class="tile-title">Next increase</div><div class="tile-value" id="statNext">—</div></div>
-        <div class="tile"><div class="tile-title">Projected rent</div><div class="tile-value" id="statProj">—</div></div>
-        <div class="tile"><div class="tile-title">Confidence</div><div class="tile-value" id="statConf">—</div></div>
-      </div>
-    </section>
+  <script type="text/babel" data-presets="react">
+    // ---- Auth gate (uses your existing helpers if app.js is present) ----
+    (function(){
+      try {
+        function getToken(){ return localStorage.getItem("token") }
+        if(!getToken()){
+          // not logged in? send to sign-in
+          location.href = "index.html";
+        }
+      } catch (_) {}
+    })();
 
-    <aside class="panel">
-      <h3>Latest update</h3>
-      <p class="muted">Auto generated from your inputs</p>
-      <div class="callout neutral" id="latestMsg">No strong red flags based on current inputs.</div>
-    </aside>
+    // ---- Icons (inline SVGs instead of lucide-react) ----
+    const Svg = ({d, className=""}) => (
+      <svg viewBox="0 0 24 24" className={className} width="20" height="20" fill="none"
+           stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d={d}/>
+      </svg>
+    );
+    const Radar        =(p)=><Svg {...p} d="M12 20a8 8 0 1 0-8-8M12 4v4m0 0 3 3"/>;
+    const Bell         =(p)=><Svg {...p} d="M18 8a6 6 0 10-12 0v5H4l1 3h14l1-3h-2V8M13.73 21a2 2 0 01-3.46 0"/>;
+    const HomeIcon     =(p)=><Svg {...p} d="M3 10l9-7 9 7v10H3z"/>;
+    const TrendingUp   =(p)=><Svg {...p} d="M23 6l-9.5 9.5-5-5L1 18"/>;
+    const ShieldCheck  =(p)=><Svg {...p} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10m-3-9l2 2 4-4"/>;
+    const Wallet2      =(p)=><Svg {...p} d="M3 7h14a2 2 0 0 1 2 2v6H3zM17 13h4v2h-4zM3 7V5a2 2 0 0 1 2-2h11"/>;
+    const LineIcon     =(p)=><Svg {...p} d="M3 17l6-6 4 4 8-8"/>;
+    const MapPin       =(p)=><Svg {...p} d="M21 10a9 9 0 1 0-18 0c0 7 9 12 9 12s9-5 9-12z M12 13a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>;
+    const Alert        =(p)=><Svg {...p} d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/>;
 
-    <section class="panel">
-      <h3>Inputs</h3>
-      <div class="grid-2">
-        <div><label>Weekly rent ($)</label><input type="number" id="inpRent" placeholder="500" /></div>
-        <div><label>Weekly income ($)</label><input type="number" id="inpIncome" placeholder="1500" /></div>
-        <div><label>Lease start</label><input type="date" id="inpLeaseStart" /></div>
-        <div>
-          <label>Landlord type</label>
-          <select id="inpLandlord">
-            <option>Agency</option><option>Private</option><option>Community housing</option><option>Government</option>
-          </select>
+    // ---- Data & helpers (ported from your teammate’s JSX) ----
+    const SUBURB_STATS = {
+      Nedlands:{suburb:"Nedlands", median_rent_weekly:800, distance_to_cbd_km:7, near_university:true, periodicity_months:12, percent_increase_per_period:0.05, annual_volatility:0.02, turnover_rate:0.32, eviction_rate:0.03, monthly_growth_last_12:[0.2,0.3,0.4,0.4,0.2,0.1,0.0,-0.1,0.1,0.2,0.3,0.2]},
+      "Canning Vale":{suburb:"Canning Vale", median_rent_weekly:650, distance_to_cbd_km:17, near_university:false, periodicity_months:6, percent_increase_per_period:0.01, annual_volatility:0.01, turnover_rate:0.28, eviction_rate:0.02, monthly_growth_last_12:[0.1,0.1,0.2,0.1,0.1,0.0,0.0,0.0,0.1,0.2,0.1,0.1]},
+      Joondalup:{suburb:"Joondalup", median_rent_weekly:500, distance_to_cbd_km:26, near_university:true, periodicity_months:12, percent_increase_per_period:0.03, annual_volatility:0.015, turnover_rate:0.3, eviction_rate:0.02, monthly_growth_last_12:[0.0,0.1,0.1,0.1,0.0,-0.1,0.0,0.1,0.2,0.1,0.1,0.0]},
+      Armadale:{suburb:"Armadale", median_rent_weekly:450, distance_to_cbd_km:36, near_university:false, periodicity_months:12, percent_increase_per_period:0.025, annual_volatility:0.02, turnover_rate:0.33, eviction_rate:0.035, monthly_growth_last_12:[0.2,0.2,0.1,0.0,-0.1,-0.1,0.0,0.1,0.2,0.1,0.0,0.0]},
+      "East Perth":{suburb:"East Perth", median_rent_weekly:700, distance_to_cbd_km:2, near_university:false, periodicity_months:12, percent_increase_per_period:0.04, annual_volatility:0.03, turnover_rate:0.4, eviction_rate:0.04, monthly_growth_last_12:[0.3,0.2,0.1,0.1,0.1,0.0,0.0,0.2,0.3,0.2,0.2,0.1]},
+    };
+    const PROPS = [
+      { id:"p1", suburb:"Nedlands", title:"2BR Apartment near UWA", weekly:720, bedrooms:2, near_university:true, distance_to_cbd_km:7, type:"apartment" },
+      { id:"p2", suburb:"Canning Vale", title:"3BR Family House", weekly:580, bedrooms:3, near_university:false, distance_to_cbd_km:17, type:"house" },
+      { id:"p3", suburb:"Joondalup", title:"3BR House with Yard", weekly:520, bedrooms:3, near_university:true, distance_to_cbd_km:26, type:"house" },
+      { id:"p4", suburb:"Armadale", title:"2BR Villa", weekly:420, bedrooms:2, near_university:false, distance_to_cbd_km:36, type:"villa" },
+      { id:"p5", suburb:"East Perth", title:"1BR CBD Apartment", weekly:650, bedrooms:1, near_university:false, distance_to_cbd_km:2, type:"apartment" },
+    ];
+    const addMonths=(d,m)=>{const x=new Date(d.getTime());const mo=x.getMonth()+m;x.setMonth(mo); if(x.getMonth()!==((mo%12)+12)%12)x.setDate(0); return x;}
+    const monthsBetween=(a,b)=>{const y=b.getFullYear()-a.getFullYear();const m=b.getMonth()-a.getMonth();let t=y*12+m; if(b.getDate()<a.getDate())t-=1; return t;}
+    function predictNextIncrease(lease, stats, today){
+      const last = lease.increase_history?.length ? lease.increase_history.map(h=>new Date(h.date)).sort((a,b)=>a-b).slice(-1)[0] : new Date(lease.lease_start);
+      const period = stats.periodicity_months||12;
+      const nextDate = addMonths(last, (Math.floor(monthsBetween(last,today)/period)+1)*period);
+      const projected = Math.round(lease.weekly_rent*(1+stats.percent_increase_per_period)*100)/100;
+      const hist=stats.monthly_growth_last_12?.length?stats.monthly_growth_last_12:[0], mean=hist.reduce((a,b)=>a+b,0)/hist.length;
+      const variance=hist.reduce((acc,v)=>acc+Math.pow(v-mean,2),0)/hist.length;
+      const vol=stats.annual_volatility; const conf=Math.max(0.35,Math.min(0.95,1-(vol*3+variance*8)));
+      return { suburb:stats.suburb, current_rent_weekly:lease.weekly_rent, next_increase_date:nextDate,
+        months_until_increase:Math.max(0,monthsBetween(today,nextDate)), projected_rent_weekly:projected,
+        expected_increase_rate:stats.percent_increase_per_period, confidence:Math.round(conf*100)/100 };
+    }
+    function affordability(weekly, income, monthsUntil, projected){
+      const ratio = income>0 ? weekly/income : 1;
+      const delta = Math.max(0, projected-weekly);
+      const weeklySave = Math.round((delta/Math.max(1, monthsUntil*4))*100)/100;
+      return { rent_to_income_ratio: Number(ratio.toFixed(3)), over_30_stress: ratio>=0.3, over_40_severe: ratio>=0.4, weekly_saving_needed_for_hike: weeklySave };
+    }
+    function benchmark(stats, current, threshold=0.1){
+      const median = stats.median_rent_weekly; const over = (current-median)/median;
+      return { suburb_median:median, overpaying_flag: over>threshold, overpay_percent:Number(over.toFixed(3)),
+               suggested_negotiation_range:[Math.round(median*0.95), Math.round(median*1.05)] };
+    }
+    function trendAlert(stats){
+      const last3=stats.monthly_growth_last_12.slice(-3), m3=last3.reduce((a,b)=>a+b,0)/last3.length;
+      const m12=stats.monthly_growth_last_12.reduce((a,b)=>a+b,0)/stats.monthly_growth_last_12.length;
+      const diff=m3-m12; let alert=null; if(diff>0.15) alert="Upward trend detected"; else if(diff<-0.15) alert="Downward trend detected";
+      return { suburb:stats.suburb, recent_vs_longterm_growth_diff:Number(diff.toFixed(3)), alert };
+    }
+    function alternatives(currentSuburb, targetWeekly){
+      const current = SUBURB_STATS[currentSuburb];
+      const cheaper = Object.values(SUBURB_STATS).filter(s=>s.suburb!==currentSuburb)
+        .filter(s=>Math.abs(s.distance_to_cbd_km-current.distance_to_cbd_km)<=12)
+        .filter(s=>s.median_rent_weekly<targetWeekly).sort((a,b)=>a.median_rent_weekly-b.median_rent_weekly).slice(0,3).map(s=>[s.suburb,s.median_rent_weekly]);
+      const properties = PROPS.filter(p=>p.suburb===currentSuburb || cheaper.map(c=>c[0]).includes(p.suburb));
+      return { cheaper_suburbs: cheaper, properties };
+    }
+    function buildSeries(today, current, projected, stepDate, income, monthsHorizon=18){
+      const t=[], rents=[], ratios=[];
+      for(let m=0;m<=monthsHorizon;m++){ const d=addMonths(today,m); t.push(d); const r=d<stepDate?current:projected; rents.push(r); ratios.push(Number((income? r/income:1).toFixed(3))); }
+      return { timeline_months:t, timeline_projected_rents:rents, affordability_ratio_series:ratios, stress:0.3 };
+    }
+
+    // ---- Tiny chart renderers (Canvas) ----
+    function drawLineAndRatio(canvas, months, rents, ratios, stress){
+      const c=canvas, ctx=c.getContext('2d'); const W=c.width=c.clientWidth*2, H=c.height=c.clientHeight*2; ctx.scale(2,2);
+      const pad=40, x0=pad, y0=canvas.clientHeight-pad, x1=canvas.clientWidth-pad, y1=pad;
+      ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight);
+      ctx.strokeStyle="#e5e7eb"; for(let i=0;i<6;i++){ const x=x0 + i*(x1-x0)/5; ctx.beginPath(); ctx.moveTo(x,y1); ctx.lineTo(x,y0); ctx.stroke(); }
+      for(let i=0;i<4;i++){ const y=y0 - i*(y0-y1)/3; ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke(); }
+
+      const maxRent=Math.max(...rents)*1.2, rentY=v=> y0 - (v/maxRent)*(y0-y1);
+      ctx.lineWidth=2; ctx.strokeStyle="#2563eb"; ctx.beginPath();
+      rents.forEach((v,i)=>{ const x=x0+i*(x1-x0)/(months.length-1), y=rentY(v); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }); ctx.stroke();
+
+      ctx.strokeStyle="#10b981"; ctx.beginPath();
+      ratios.forEach((r,i)=>{ const x=x0+i*(x1-x0)/(months.length-1), y=y0 - Math.min(1,r)*(y0-y1); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }); ctx.stroke();
+
+      // stress line
+      ctx.setLineDash([6,6]); ctx.strokeStyle="#ef4444"; const sy=y0 - stress*(y0-y1); ctx.beginPath(); ctx.moveTo(x0,sy); ctx.lineTo(x1,sy); ctx.stroke(); ctx.setLineDash([]);
+    }
+    function drawBar(canvas, you, median){
+      const ctx=canvas.getContext('2d'); const W=canvas.width=canvas.clientWidth*2, H=canvas.height=canvas.clientHeight*2; ctx.scale(2,2);
+      const pad=25, bw=60, gap=40, base=canvas.clientHeight-pad; const max=Math.max(you,median)*1.3;
+      const y=v=> base - (v/max)*(base-pad);
+      ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight); ctx.fillStyle="#2563eb";
+      // you
+      ctx.fillRect(60, y(you), bw, base - y(you));
+      // median
+      ctx.fillStyle="#94a3b8"; ctx.fillRect(60+bw+gap, y(median), bw, base - y(median));
+      ctx.fillStyle="#111827"; ctx.fillText("You", 60, base+14); ctx.fillText("Median", 60+bw+gap, base+14);
+    }
+    function drawDonut(canvas, weights){
+      const ctx=canvas.getContext('2d'); const W=canvas.width=canvas.clientWidth*2, H=canvas.height=canvas.clientHeight*2; ctx.scale(2,2);
+      const cx=canvas.clientWidth/2, cy=canvas.clientHeight/2, R=60, r=36; const colors=["#2563eb","#10b981","#f59e0b","#6b7280"];
+      const sum=weights.reduce((a,b)=>a+b,0)||1; let a0=-Math.PI/2;
+      ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight);
+      weights.forEach((w,i)=>{ const ang=2*Math.PI*(w/sum); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.fillStyle=colors[i%colors.length]; ctx.arc(cx,cy,R,a0,a0+ang); ctx.closePath(); ctx.fill(); a0+=ang; });
+      // hole
+      ctx.globalCompositeOperation="destination-out"; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.globalCompositeOperation="source-over";
+    }
+
+    // ---- Small UI controls ----
+    const Button = ({children, className="", ...props}) => <button className={"btn "+className} {...props}>{children}</button>;
+    const Card = ({children, className=""}) => <div className={"card "+className}>{children}</div>;
+    const Label=({children})=><label className="text-sm text-neutral-600">{children}</label>;
+    const Input=({...p})=><input className="w-full px-3 py-2 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-sky-400" {...p}/>;
+    const Select=({value,onChange,children})=>(
+      <select value={value} onChange={e=>onChange(e.target.value)}
+        className="w-full px-3 py-2 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-sky-400">{children}</select>
+    );
+
+    // ---- Dashboard App (ported) ----
+    function Dashboard(){
+      const today = React.useMemo(()=> new Date(), []);
+      const [name, setName] = React.useState("Alex");
+      const [suburb, setSuburb] = React.useState("Nedlands");
+      const [weeklyRent, setWeeklyRent] = React.useState(500);
+      const [weeklyIncome, setWeeklyIncome] = React.useState(1500);
+      const [leaseStart, setLeaseStart] = React.useState("2024-10-01");
+      const [landlordType, setLandlordType] = React.useState("agency");
+      const [overpayThreshold, setOverpayThreshold] = React.useState(0.1);
+
+      const stats = SUBURB_STATS[suburb];
+      const pred = predictNextIncrease({ weekly_rent:Number(weeklyRent), lease_start:new Date(leaseStart), increase_history:[], landlord_type:landlordType }, stats, today);
+      const aff  = affordability(Number(weeklyRent), Number(weeklyIncome), pred.months_until_increase, pred.projected_rent_weekly);
+      const bench= benchmark(stats, Number(weeklyRent), Number(overpayThreshold));
+      const trend= trendAlert(stats);
+      const alts = alternatives(suburb, Number(weeklyRent));
+      const series = buildSeries(today, Number(weeklyRent), pred.projected_rent_weekly, pred.next_increase_date, Number(weeklyIncome));
+
+      // draw charts
+      const lineRef = React.useRef(null);
+      const barRef  = React.useRef(null);
+      const donutRef= React.useRef(null);
+      React.useEffect(()=>{
+        if(lineRef.current) drawLineAndRatio(lineRef.current, series.timeline_months, series.timeline_projected_rents, series.affordability_ratio_series, series.stress);
+        if(barRef.current)  drawBar(barRef.current, Number(weeklyRent), stats.median_rent_weekly);
+        if(donutRef.current) {
+          // risk weights (approximate from teammate’s drivers)
+          const burden = Math.min(1, Math.max(0, (aff.rent_to_income_ratio - 0.25)/0.25)) * 0.35;
+          const turnover = Math.min(1, stats.turnover_rate/0.5) * 0.25;
+          const eviction = Math.min(1, stats.eviction_rate/0.08) * 0.25;
+          const landlord = (landlordType==="agency"?0.6:landlordType==="private"?0.5:0.4) * 0.15;
+          drawDonut(donutRef.current, [burden, turnover, eviction, landlord]);
+        }
+      }, [weeklyRent, weeklyIncome, suburb, overpayThreshold, landlordType, leaseStart]);
+
+      const ratioPct = Math.min(100, Math.round((aff.rent_to_income_ratio||0)*100));
+
+      return (
+        <div className="min-h-screen text-neutral-900">
+          {/* Navbar */}
+          <nav className="border-b bg-white/70 backdrop-blur sticky top-0 z-10">
+            <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+              <a href="home.html" className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-white/80 border border-white/60 shadow-sm flex items-center justify-center">
+                  <Radar className="h-4 w-4 text-sky-600" />
+                </div>
+                <div>
+                  <div className="text-lg font-semibold tracking-tight">RentScope</div>
+                  <div className="text-xs text-neutral-500">Predict. Prepare. Stay secure.</div>
+                </div>
+              </a>
+              <div className="hidden md:flex items-center gap-2 text-sm">
+                <a className="px-3 py-2 rounded-xl text-neutral-700 hover:bg-neutral-200/60 flex items-center gap-2" href="home.html">
+                  <HomeIcon className="h-4 w-4" /> Home
+                </a>
+                <span className="px-3 py-2 rounded-xl bg-neutral-900 text-white flex items-center gap-2">
+                  <LineIcon className="h-4 w-4" /> Dashboard
+                </span>
+                <a className="px-3 py-2 rounded-xl text-neutral-700 hover:bg-neutral-200/60 flex items-center gap-2" href="predict.html?mode=market">
+                  <MapPin className="h-4 w-4" /> Browse
+                </a>
+              </div>
+              <button className="relative p-2 rounded-xl hover:bg-neutral-100" aria-label="Notifications">
+                <Bell className="h-5 w-5" />
+              </button>
+            </div>
+          </nav>
+
+          {/* Utilities banner */}
+          <div className="bg-amber-50 border-b border-amber-200 text-amber-900 text-sm px-6 py-3">
+            From 1 July, utilities typically increase by ~2.5% annually on average. This assumption is included in forecasts.
+          </div>
+
+          <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+            <section>
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">Welcome, {name}</h1>
+              <p className="text-neutral-600 mt-1 flex items-center gap-2">
+                <LineIcon className="h-4 w-4 text-sky-600"/> Latest update for {suburb}: {trend.alert || "No strong deviation detected"}.
+                Average increase pattern {Math.round(SUBURB_STATS[suburb].percent_increase_per_period*100)}% every {SUBURB_STATS[suburb].periodicity_months} months.
+              </p>
+            </section>
+
+            {/* Inputs */}
+            <div className="card p-5">
+              <div className="text-lg font-medium mb-4">Your inputs</div>
+              <div className="grid md:grid-cols-4 gap-4">
+                <div><Label>Suburb</Label>
+                  <Select value={suburb} onChange={setSuburb}>
+                    {Object.keys(SUBURB_STATS).map(s=> <option key={s} value={s}>{s}</option>)}
+                  </Select>
+                </div>
+                <div><Label>Weekly rent ($)</Label><Input type="number" value={weeklyRent} onChange={e=>setWeeklyRent(Number(e.target.value||0))}/></div>
+                <div><Label>Weekly income ($)</Label><Input type="number" value={weeklyIncome} onChange={e=>setWeeklyIncome(Number(e.target.value||0))}/></div>
+                <div><Label>Lease start</Label><Input type="date" value={leaseStart} onChange={e=>setLeaseStart(e.target.value)}/></div>
+              </div>
+              <div className="grid md:grid-cols-4 gap-4 mt-4">
+                <div><Label>Landlord type</Label>
+                  <Select value={landlordType} onChange={setLandlordType}>
+                    <option value="agency">Agency</option>
+                    <option value="private">Private</option>
+                    <option value="community_housing">Community housing</option>
+                  </Select>
+                </div>
+                <div className="md:col-span-3"><Label>Overpay threshold ({Math.round(overpayThreshold*100)}%)</Label>
+                  <input type="range" min="0.05" max="0.25" step="0.01" value={overpayThreshold}
+                    onChange={e=>setOverpayThreshold(Number(e.target.value))} className="w-full"/>
+                </div>
+              </div>
+            </div>
+
+            {/* Forecast chart */}
+            <div className="card p-5">
+              <div className="flex items-center gap-2 font-medium">
+                <LineIcon className="h-5 w-5 text-sky-600"/> Current vs projected rent (18 months)
+              </div>
+              <div className="text-sm text-neutral-600 mb-2">Blue = Weekly rent; Green = rent-to-income ratio; Red dashed = 30% stress</div>
+              <div className="w-full h-72"><canvas id="forecast" ref={lineRef} className="w-full h-full"></canvas></div>
+              <div className="mt-3 text-xs text-neutral-600">What this means: plan savings ahead of the step change.</div>
+            </div>
+
+            {/* Overview minis */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="card p-5">
+                <div className="text-sm font-medium text-neutral-600 flex items-center gap-2"><TrendingUp className="h-4 w-4"/> Next increase</div>
+                <div className="text-xl font-semibold mt-1">{pred.next_increase_date.toLocaleDateString()}</div>
+                <div className="text-xs text-neutral-500 mt-1">Based on {SUBURB_STATS[suburb].periodicity_months}-month periodicity.</div>
+              </div>
+              <div className="card p-5">
+                <div className="text-sm font-medium text-neutral-600 flex items-center gap-2"><Wallet2 className="h-4 w-4"/> Projected weekly rent</div>
+                <div className="text-xl font-semibold mt-1">${pred.projected_rent_weekly.toFixed(2)}</div>
+                <div className="text-xs text-neutral-500 mt-1">Assuming ~{Math.round(SUBURB_STATS[suburb].percent_increase_per_period*100)}% step.</div>
+              </div>
+              <div className="card p-5">
+                <div className="text-sm font-medium text-neutral-600 flex items-center gap-2"><ShieldCheck className="h-4 w-4"/> Confidence</div>
+                <div className="text-xl font-semibold mt-1">{Math.round(pred.confidence*100)}%</div>
+                <div className="text-xs text-neutral-500 mt-1">Higher volatility lowers confidence.</div>
+              </div>
+            </div>
+
+            {/* Rent vs median (bar) + Affordability meter + Risk donut */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="card p-5">
+                <div className="flex items-center gap-2 font-medium"><Wallet2 className="h-5 w-5 text-emerald-600"/> Rent vs median</div>
+                <div className="h-36 w-full mt-2"><canvas id="bar" ref={barRef} className="w-full h-full"></canvas></div>
+                <div className="mt-2 text-sm text-neutral-600">Median in {suburb}: ${bench.suburb_median.toFixed(0)}</div>
+              </div>
+
+              <div className="card p-5">
+                <div className="flex items-center gap-2 font-medium"><Wallet2 className="h-5 w-5 text-emerald-600"/> Affordability overview</div>
+                <div className="text-sm text-neutral-600">Rent as a % of income (goal below 30%)</div>
+                <div className="w-full h-3 bg-neutral-200 rounded-full overflow-hidden mt-2">
+                  <div className={`h-3 ${ratioPct>=40? "bg-rose-500": ratioPct>=30? "bg-amber-500":"bg-emerald-500"}`} style={{width:`${Math.min(100,ratioPct)}%`}}></div>
+                </div>
+                <div className="mt-2 text-sm flex items-center justify-between">
+                  <span>{ratioPct}% of income</span>
+                  <span className="text-neutral-500">Save ~${aff.weekly_saving_needed_for_hike}/wk</span>
+                </div>
+              </div>
+
+              <div className="card p-5">
+                <div className="flex items-center gap-2 font-medium"><ShieldCheck className="h-5 w-5 text-sky-700"/> Risk drivers</div>
+                <div className="h-36 w-full mt-2"><canvas id="donut" ref={donutRef} className="w-full h-full"></canvas></div>
+                <div className="text-xs text-neutral-500 mt-2">Weighted blend of rent burden, turnover, eviction pressure, and landlord type.</div>
+              </div>
+            </div>
+
+            {/* Alternatives carousel */}
+            <div className="card p-5" id="alternatives">
+              <div className="flex items-center gap-2 font-medium"><MapPin className="h-5 w-5 text-sky-600"/> Alternatives</div>
+              <div className="-mx-2 overflow-x-auto mt-2">
+                <div className="px-2 flex gap-3 snap-x snap-mandatory">
+                  {alts.properties.slice(0,7).map(p=>(
+                    <div key={p.id} className="min-w-[280px] snap-start rounded-2xl border p-4 bg-white/60">
+                      <div className="text-sm text-neutral-600">{p.type} · {p.bedrooms} bed</div>
+                      <div className="text-lg font-semibold">{p.title}</div>
+                      <div className="text-xs text-neutral-500">{p.suburb} · {p.distance_to_cbd_km} km to CBD · {p.near_university ? "Near university":"General"}</div>
+                      <div className="mt-2 flex items-center justify-between">
+                        <div className="font-medium">${p.weekly}/wk</div>
+                        <a href={`#/property/${p.id}`} className="px-3 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 inline-flex items-center">View</a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-3 text-xs text-neutral-500">Compare to fair benchmarks before deciding to renew or move.</div>
+            </div>
+          </main>
+
+          <footer className="border-t mt-10">
+            <div className="max-w-7xl mx-auto px-6 py-8 text-sm text-neutral-600 flex items-center gap-2">
+              <HomeIcon className="h-4 w-4" /> Designed for WA renters. Demo data only.
+            </div>
+          </footer>
         </div>
-      </div>
+      );
+    }
 
-      <label>Overpay threshold</label>
-      <input type="range" id="inpThreshold" min="0" max="30" step="1" value="8" />
-      <div class="muted"><span id="thresholdVal">8</span>%</div>
-
-      <button id="seeRecs" class="btn btn-primary" style="margin-top:10px">See recommendations</button>
-      <canvas id="forecastChart" width="900" height="320" style="width:100%;max-width:100%;margin-top:12px"></canvas>
-      <div class="muted" style="margin-top:8px"><span style="margin-right:16px">🟢 Affordability ratio</span><span>🔵 Weekly rent ($)</span></div>
-    </section>
-  </div>
-
-  <script src="app.js"></script>
+    // Mount
+    ReactDOM.createRoot(document.getElementById('app')).render(<Dashboard />);
+  </script>
 </body>
 </html>
