@@ -1,33 +1,45 @@
-<!DOCTYPE html>
-<html>
+<!-- login.html -->
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>RentScope • Sign in</title>
-  <link rel="icon" href="./logo.png" type="image/png" />
-  <link rel="stylesheet" href="style.css" />
+  <title>Login — RentScope</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <script defer src="app.js"></script>
 </head>
-<body>
-  <main class="card" role="main" aria-labelledby="title">
-    <div class="brand">
-      <img src="./logo.png" alt="RentScope logo" />
-      <h1 id="title">RentScope</h1>
+<body data-page="login">
+  <header class="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">RentScope</a>
+      <nav class="nav__links">
+        <a href="index.html">Home</a>
+        <a id="nav-dashboard" href="dashboard.html" class="hidden">Dashboard</a>
+        <a id="nav-login" href="login.html" class="active">Login</a>
+        <a id="nav-signup" href="signup.html" class="btn btn--primary">Sign up</a>
+      </nav>
     </div>
+  </header>
 
-    <h2>Sign in</h2>
-    <form id="loginForm" novalidate>
-      <label for="liEmail">Email address</label>
-      <input type="email" id="liEmail" placeholder="you@example.com" required />
-      <label for="liPassword">Password</label>
-      <input type="password" id="liPassword" placeholder="••••••••" required />
-      <button type="submit" class="btn btn-primary">Continue</button>
-    </form>
-    <p id="liMsg" class="msg"></p>
+  <main class="container auth">
+    <div class="card card--form">
+      <h2>Welcome back</h2>
+      <p class="muted">Log in to your account.</p>
 
-    <p class="muted">Don't have an account? <a href="./signup.html">Create account</a></p>
-    <hr class="sep" />
-    <button id="demoBtn" class="btn btn-ghost">Continue as demo user</button>
+      <form id="login-form" class="form">
+        <label>Email
+          <input id="login-email" type="email" placeholder="you@example.com" autocomplete="email" required />
+        </label>
+        <label>Password
+          <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+        </label>
+        <button class="btn btn--primary" type="submit">Log in</button>
+      </form>
+
+      <p class="muted small">No account? <a href="signup.html">Create one</a>.</p>
+    </div>
   </main>
 
-  <script src="app.js"></script>
+  <div id="toast" class="toast"></div>
 </body>
 </html>

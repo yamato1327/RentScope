@@ -1,140 +1,72 @@
+<!-- dashboard.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RentScope – Dashboard</title>
-
-  <!-- Your existing base styles here -->
-  <link rel="stylesheet" href="style.css" />
-
-  <!-- Add the new dashboard styles AFTER your base CSS -->
-  <link rel="stylesheet" href="dashboard.css" />
+  <title>Dashboard — RentScope</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <link href="dashboard.css" rel="stylesheet" />
+  <script defer src="app.js"></script>
 </head>
-<body>
-  <!-- Keep your existing navbar exactly as-is -->
-  <header class="navbar">
-    <div class="brand"><span class="spark"></span>RentScope</div>
-    <nav></nav>
-    <button id="logoutBtn" class="primary-btn" style="margin-left:auto">Logout</button>
+<body data-page="dashboard">
+  <header class="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">RentScope</a>
+      <nav class="nav__links">
+        <a href="index.html">Home</a>
+        <a id="nav-dashboard" href="dashboard.html" class="active">Dashboard</a>
+        <button id="nav-logout" class="btn btn--ghost">Logout</button>
+      </nav>
+    </div>
   </header>
 
-  <!-- Keep your existing welcome/hero block -->
-  <section class="hero" style="background:linear-gradient(160deg,#eef6ff,#f4fbef 60%);border-bottom:1px solid rgba(0,0,0,.06);padding:28px 24px 14px;">
-    <h1 id="greeting" style="margin:0 0 6px;font-size:34px;letter-spacing:.2px">Welcome</h1>
-    <div class="small muted">Latest update for <span id="suburbNameText">Nedlands</span>: No strong deviation detected. Average increase pattern 5% every 12 months.</div>
-  </section>
-
-  <!-- Main grid -->
-  <main class="dashboard-grid">
-    <!-- Left: Inputs -->
-    <section class="dashboard-card inputs-card" id="inputsCard">
-      <h3>Your inputs</h3>
-
+  <main class="container dash">
+    <section class="dash__header">
       <div>
-        <label for="suburb">Suburb</label>
-        <select id="suburb">
-          <option>Nedlands</option>
-        </select>
+        <h1>Welcome, <span id="greeting">…</span></h1>
+        <p class="muted">Here are your key insights.</p>
       </div>
-
-      <div class="inputs-row">
-        <div>
-          <label for="weeklyRent">Weekly rent ($)</label>
-          <input id="weeklyRent" type="number" value="500" />
-        </div>
-        <div>
-          <label for="weeklyIncome">Weekly income ($)</label>
-          <input id="weeklyIncome" type="number" value="1500" />
-        </div>
+      <div class="dash__actions">
+        <a class="btn btn--primary" href="predict.html">Make a prediction</a>
       </div>
-
-      <div class="inputs-row">
-        <div>
-          <label for="leaseStart">Lease start</label>
-          <input id="leaseStart" type="date" />
-        </div>
-        <div>
-          <label for="landlordType">Landlord type</label>
-          <select id="landlordType">
-            <option>Agency</option>
-            <option>Private</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="range-wrap">
-        <label for="threshold">Overpay threshold (<span id="thresholdPct">10%</span>)</label>
-        <input id="threshold" type="range" min="0" max="30" value="10" />
-      </div>
-
-      <button id="seeRecs" type="button" class="primary-btn">See recommendations</button>
     </section>
 
-    <!-- Right: KPIs + Forecast + Info -->
-    <div style="display:flex;flex-direction:column;gap:20px">
-      <!-- KPIs -->
-      <section class="kpi-row">
-        <div class="kpi-card">
-          <div class="label">Next increase</div>
-          <div id="kpiNext" class="value">01/10/2025</div>
-          <div class="note">Based on 12-month periodicity.</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Projected weekly rent</div>
-          <div id="kpiProjected" class="value">$525.00</div>
-          <div class="note">Assuming ~5% step.</div>
-        </div>
-        <div class="kpi-card">
-          <div class="label">Confidence</div>
-          <div id="kpiConfidence" class="value">77%</div>
-          <div class="note">Volatility affects confidence.</div>
-        </div>
-      </section>
+    <section class="grid kpis">
+      <div class="card kpi">
+        <div class="kpi__label muted">Active Listings</div>
+        <div class="kpi__value" id="kpi-listings">—</div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi__label muted">Avg. Rent (AU$)</div>
+        <div class="kpi__value" id="kpi-avg-rent">—</div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi__label muted">Predictions Run</div>
+        <div class="kpi__value" id="kpi-preds">—</div>
+      </div>
+    </section>
 
-      <!-- Forecast -->
-      <section class="dashboard-card chart-card" id="forecastCard">
-        <h3>Forecast (18 months)</h3>
-        <canvas id="forecastCanvas" width="900" height="320"></canvas>
-        <div class="chart-legend">
-          <span><span class="dot dot-green"></span> Affordability ratio</span>
-          <span><span class="dot dot-blue"></span> Weekly rent ($)</span>
-          <span class="small muted">Red dashed = 30% stress</span>
+    <section class="grid two">
+      <div class="card">
+        <h3 class="muted">Trend</h3>
+        <canvas id="chart" width="600" height="280" aria-label="Simple chart placeholder"></canvas>
+        <p class="small muted">Static placeholder — replace with your charting if needed.</p>
+      </div>
+      <div class="card">
+        <h3 class="muted">Account</h3>
+        <div class="info">
+          <div><span class="label muted">Name</span><span id="info-name">—</span></div>
+          <div><span class="label muted">Email</span><span id="info-email">—</span></div>
+          <div class="row gap">
+            <a class="btn btn--ghost" href="profile.html">Edit profile (optional)</a>
+            <button class="btn btn--danger" id="btn-logout">Logout</button>
+          </div>
         </div>
-      </section>
-
-      <!-- Info row -->
-      <section class="info-grid">
-        <div class="dashboard-card" id="trendCard">
-          <h3>Trend alert</h3>
-          <p class="muted" id="trendNote">No strong deviation detected.</p>
-        </div>
-        <div class="dashboard-card" id="benchCard">
-          <h3>Benchmark</h3>
-          <p class="muted" id="benchNote">Suburb median: $800. Negotiate: $760–$840.</p>
-        </div>
-        <div class="dashboard-card" id="riskCard">
-          <h3>Eviction risk</h3>
-          <p class="muted" id="riskNote">Band: moderate. Score 0.46.</p>
-        </div>
-      </section>
-
-      <!-- Alternatives -->
-      <section class="dashboard-card alt-card">
-        <div class="alt-meta">
-          <div class="small muted">apartment · 2 bed</div>
-          <div class="alt-title">2BR Apartment near UWA</div>
-          <div class="small muted">Nedlands · 7 km to CBD · Near university</div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:center">
-          <strong id="altPrice">$720/wk</strong>
-          <button class="primary-btn" type="button" style="background:#fff;color:#111827;border:1px solid #e5e7eb">View</button>
-        </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Your existing JS (no changes required) -->
-  <script src="app.js"></script>
+  <div id="toast" class="toast"></div>
 </body>
 </html>

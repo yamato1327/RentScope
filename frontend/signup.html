@@ -1,31 +1,48 @@
-<!DOCTYPE html>
-<html>
+<!-- signup.html -->
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>RentScope • Create account</title>
-  <link rel="icon" href="./logo.png" type="image/png" />
-  <link rel="stylesheet" href="style.css" />
+  <title>Sign up — RentScope</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="style.css" rel="stylesheet" />
+  <script defer src="app.js"></script>
 </head>
-<body>
-  <main class="card" role="main" aria-labelledby="title">
-    <div class="brand">
-      <img src="./logo.png" alt="RentScope logo" />
-      <h1 id="title">RentScope</h1>
+<body data-page="signup">
+  <header class="nav">
+    <div class="container nav__inner">
+      <a class="brand" href="index.html">RentScope</a>
+      <nav class="nav__links">
+        <a href="index.html">Home</a>
+        <a id="nav-dashboard" href="dashboard.html" class="hidden">Dashboard</a>
+        <a id="nav-login" href="login.html">Login</a>
+        <a id="nav-signup" href="signup.html" class="btn btn--primary active">Sign up</a>
+      </nav>
     </div>
+  </header>
 
-    <h2>Create account</h2>
-    <form id="signupForm" novalidate>
-      <label for="suEmail">Email address</label>
-      <input type="email" id="suEmail" placeholder="you@example.com" required />
-      <label for="suPassword">Password (min 8)</label>
-      <input type="password" id="suPassword" minlength="8" placeholder="••••••••" required />
-      <button type="submit" class="btn btn-primary">Sign up</button>
-    </form>
-    <p id="suMsg" class="msg"></p>
+  <main class="container auth">
+    <div class="card card--form">
+      <h2>Create your account</h2>
+      <p class="muted">Join RentScope in seconds.</p>
 
-    <p class="muted">Already have an account? <a href="./login.html">Log in</a></p>
+      <form id="signup-form" class="form">
+        <label>Name
+          <input id="signup-name" type="text" placeholder="Jane Doe" autocomplete="name" required />
+        </label>
+        <label>Email
+          <input id="signup-email" type="email" placeholder="you@example.com" autocomplete="email" required />
+        </label>
+        <label>Password
+          <input id="signup-password" type="password" placeholder="••••••••" autocomplete="new-password" minlength="6" required />
+        </label>
+        <button class="btn btn--primary" type="submit">Create account</button>
+      </form>
+
+      <p class="muted small">Already have an account? <a href="login.html">Log in</a>.</p>
+    </div>
   </main>
 
-  <script src="app.js"></script>
+  <div id="toast" class="toast"></div>
 </body>
 </html>

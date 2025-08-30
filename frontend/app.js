@@ -1,357 +1,236 @@
-// -----------------------------
-// RentScope - app.js (vanilla JS)
-// -----------------------------
+// app.js
+// ---- Config ----
+const API_BASE = "https://rentscope-backend.onrender.com";
 
-// ===== Config =====
-const API_BASE = "https://rentscope-backend.onrender.com"; // your Render backend
-const ENDPOINTS = {
-  signup: "/api/signup",
-  login: "/api/login",
-  me: "/api/me",
-  health: "/api/health",
+// ---- Storage helpers ----
+const saveToken = (t) => localStorage.setItem("token", t);
+const getToken = () => localStorage.getItem("token");
+const clearToken = () => localStorage.removeItem("token");
+
+const saveProfile = (p) => localStorage.setItem("profile", JSON.stringify(p));
+const getProfile = () => {
+  try { return JSON.parse(localStorage.getItem("profile") || "null"); }
+  catch { return null; }
 };
+const clearProfile = () => localStorage.removeItem("profile");
 
-// ===== Tiny DOM helpers =====
-const $ = (sel, root = document) => root.querySelector(sel);
-const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
-const on = (el, evt, fn, opts) => el && el.addEventListener(evt, fn, opts);
-const show = (el) => el && (el.hidden = false);
-const hide = (el) => el && (el.hidden = true);
-const setText = (el, text) => el && (el.textContent = text ?? "");
-const setHTML = (el, html) => el && (el.innerHTML = html ?? "");
-const byId = (id) => document.getElementById(id);
-
-// ===== Flash / toast =====
-function toast(msg, type = "info", timeout = 3500) {
-  let bar = byId("toast");
-  if (!bar) {
-    bar = document.createElement("div");
-    bar.id = "toast";
-    Object.assign(bar.style, {
-      position: "fixed",
-      left: "50%",
-      transform: "translateX(-50%)",
-      bottom: "20px",
-      maxWidth: "90vw",
-      padding: "10px 14px",
-      borderRadius: "8px",
-      color: "#fff",
-      background: "#333",
-      fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial",
-      fontSize: "14px",
-      boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
-      zIndex: 9999,
-      opacity: 0,
-      transition: "opacity .15s ease",
-      pointerEvents: "none",
-      textAlign: "center",
-    });
-    document.body.appendChild(bar);
-  }
-  const colors = { info: "#333", success: "#16794D", warn: "#9E6B00", error: "#B00020" };
-  bar.style.background = colors[type] || colors.info;
-  bar.textContent = msg;
-  bar.style.opacity = 1;
-  window.clearTimeout(bar._t);
-  bar._t = window.setTimeout(() => (bar.style.opacity = 0), timeout);
+// ---- Toast ----
+function toast(msg, ms = 2600){
+  const el = document.getElementById("toast");
+  if(!el) return alert(msg);
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), ms);
 }
 
-// ===== Token helpers =====
-function saveToken(t) { localStorage.setItem("token", t); }
-function getToken() { return localStorage.getItem("token"); }
-function isAuthed() { return !!getToken(); }
-function logout() {
-  localStorage.removeItem("token");
-  // keep profile if you want persistent greeting across sessions; uncomment to clear:
-  // localStorage.removeItem("profile");
-  location.href = "login.html";
-}
+// ---- Auth + Guards ----
+function isAuthed(){ return !!getToken(); }
 
-// ===== Auth guard for non-public pages =====
-function requireAuth() {
-  const path = location.pathname;
-  const publicPages = ["/", "/index.html", "/login.html", "/signup.html"];
-  const isPublic = publicPages.some((p) => path.endsWith(p) || path === p);
-  if (!isPublic && !isAuthed()) {
+function logout(opts = { silent:false }){
+  clearToken();
+  clearProfile();
+  if(!opts.silent) toast("You’ve been logged out.");
+  // Try to keep UX consistent: send to login when leaving protected pages.
+  const page = getPage();
+  if (page === "dashboard") {
     location.href = "login.html";
+  } else {
+    // update navbar state if staying
+    renderNav();
   }
 }
 
-// ===== Fetch helper (auto-JSON + auth + 401 handling) =====
-async function apiFetch(path, { method = "GET", body, headers = {} } = {}) {
-  const url = path.startsWith("http") ? path : API_BASE + path;
-  const token = getToken();
-  const isBlob = body instanceof FormData;
-
-  const res = await fetch(url, {
-    method,
-    headers: {
-      ...(isBlob ? {} : { "Content-Type": "application/json" }),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
-    body: isBlob ? body : body ? JSON.stringify(body) : undefined,
-  });
-
-  // Handle 401 globally
-  if (res.status === 401) {
-    toast("Session expired. Please log in again.", "warn");
-    logout();
-    return; // stop further work
+function requireAuth(){
+  if(!isAuthed()){
+    location.href = "login.html";
+    return false;
   }
+  return true;
+}
 
-  // Try to parse JSON; if fail, return text
+// ---- Fetch helper with global 401 handling ----
+async function fetchJSON(path, opts = {}, { auth = true } = {}){
+  const headers = new Headers(opts.headers || {});
+  headers.set("Content-Type", "application/json");
+  if(auth && getToken()) headers.set("Authorization", `Bearer ${getToken()}`);
+  const res = await fetch(`${API_BASE}${path}`, { ...opts, headers, credentials: "omit" });
+  if(res.status === 401){
+    toast("Session expired. Please log in again.");
+    logout({ silent:true });
+    setTimeout(() => location.href = "login.html", 600);
+    throw new Error("Unauthorized");
+  }
+  // Allow empty JSON bodies
   const text = await res.text();
-  let data;
-  try { data = text ? JSON.parse(text) : {}; } catch (_) { data = { raw: text }; }
-
-  if (!res.ok) {
-    const msg = data?.error || data?.message || `Request failed (${res.status})`;
+  const data = text ? JSON.parse(text) : null;
+  if(!res.ok){
+    const msg = (data && (data.error || data.message)) || `Request failed (${res.status})`;
     throw new Error(msg);
   }
   return data;
 }
 
-// ===== Utilities =====
-function formToJSON(form) {
-  const fd = new FormData(form);
-  const obj = {};
-  for (const [k, v] of fd.entries()) obj[k] = v;
-  return obj;
+// ---- API ----
+async function apiSignup({ name, email, password }){
+  return fetchJSON("/api/signup", {
+    method: "POST",
+    body: JSON.stringify({ name, email, password }),
+  }, { auth:false });
+}
+async function apiLogin({ email, password }){
+  return fetchJSON("/api/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  }, { auth:false });
+}
+async function apiMe(){
+  return fetchJSON("/api/me", { method:"GET" }, { auth:true });
 }
 
-// Cache minimal profile client-side (optional)
-function cacheProfile(p) { localStorage.setItem("profile", JSON.stringify(p)); }
-function getCachedProfile() {
-  try { return JSON.parse(localStorage.getItem("profile") || "{}"); }
-  catch { return {}; }
+// ---- UI wiring ----
+function getPage(){
+  const b = document.body;
+  return b?.dataset?.page || "";
 }
 
-// ===== Navbar state (show/hide auth links) =====
-function initNav() {
-  const authedEls = $$(".nav-authed");
-  const anonEls = $$(".nav-anon");
-  if (isAuthed()) {
-    authedEls.forEach(show);
-    anonEls.forEach(hide);
-  } else {
-    authedEls.forEach(hide);
-    anonEls.forEach(show);
-  }
+function renderNav(){
+  const has = isAuthed();
+  const elDash = document.getElementById("nav-dashboard");
+  const elLogin = document.getElementById("nav-login");
+  const elSignup = document.getElementById("nav-signup");
+  const elLogout = document.getElementById("nav-logout");
 
-  // Attach logout
-  const logoutBtn = $("#logoutBtn");
-  on(logoutBtn, "click", (e) => {
+  if(elDash) elDash.classList.toggle("hidden", !has);
+  if(elLogout) elLogout.classList.toggle("hidden", !has);
+  if(elLogin) elLogin.classList.toggle("hidden", has);
+  if(elSignup) elSignup.classList.toggle("hidden", has);
+}
+
+function bindLogoutButtons(){
+  const btn1 = document.getElementById("nav-logout");
+  const btn2 = document.getElementById("btn-logout");
+  [btn1, btn2].forEach(btn => btn && btn.addEventListener("click", () => logout()));
+}
+
+// ---- Pages ----
+async function initHome(){
+  const y = document.getElementById("year");
+  if(y) y.textContent = new Date().getFullYear();
+}
+
+function bindLogin(){
+  const form = document.getElementById("login-form");
+  if(!form) return;
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    logout();
-  });
-}
-
-// ===== Page initializers =====
-
-// Home (index.html)
-async function initIndex() {
-  // Optional: ping health
-  try {
-    await apiFetch(ENDPOINTS.health);
-  } catch {
-    // If health fails, don't block UI; show a soft warning.
-    toast("Backend health check failed. You can still try logging in.", "warn", 3000);
-  }
-
-  const greet = byId("greeting");
-  if (!greet) return;
-
-  if (isAuthed()) {
-    // Prefer cached profile for snappy paint
-    const cached = getCachedProfile();
-    if (cached?.name) setText(greet, `Welcome back, ${cached.name}!`);
-
-    try {
-      const me = await apiFetch(ENDPOINTS.me);
-      if (me?.name) {
-        setText(greet, `Welcome back, ${me.name}!`);
-        cacheProfile(me);
-      } else {
-        setText(greet, "Welcome back!");
-      }
-    } catch (err) {
-      // If /me fails, keep cached name if any
-      if (!cached?.name) setText(greet, "Welcome!");
-    }
-  } else {
-    setText(greet, "Welcome to RentScope!");
-  }
-}
-
-// Signup (signup.html)
-function initSignup() {
-  const form = $("#signupForm");
-  if (!form) return;
-
-  const submitBtn = $("#signupSubmit");
-  const errBox = $("#signupError");
-
-  on(form, "submit", async (e) => {
-    e.preventDefault();
-    errBox && (errBox.textContent = "");
-    submitBtn && (submitBtn.disabled = true);
-
-    try {
-      const payload = formToJSON(form);
-      // Expecting fields like: { name, email, password }
-      const data = await apiFetch(ENDPOINTS.signup, { method: "POST", body: payload });
-
-      const token = data?.token;
-      const profile = data?.user || data?.profile || {};
-      if (token) saveToken(token);
-      if (profile) cacheProfile(profile);
-
-      toast("Account created. You're now logged in.", "success");
-      location.href = "index.html";
-    } catch (err) {
-      if (errBox) errBox.textContent = err.message;
-      toast(err.message, "error");
-    } finally {
-      submitBtn && (submitBtn.disabled = false);
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    try{
+      const { token, user } = await apiLogin({ email, password });
+      if(!token) throw new Error("No token returned");
+      saveToken(token);
+      if(user) saveProfile(user);
+      toast("Logged in!");
+      location.href = "dashboard.html";
+    }catch(err){
+      toast(err.message || "Login failed");
     }
   });
 }
 
-// Login (login.html)
-function initLogin() {
-  const form = $("#loginForm");
-  if (!form) return;
-
-  const submitBtn = $("#loginSubmit");
-  const errBox = $("#loginError");
-
-  on(form, "submit", async (e) => {
+function bindSignup(){
+  const form = document.getElementById("signup-form");
+  if(!form) return;
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    errBox && (errBox.textContent = "");
-    submitBtn && (submitBtn.disabled = true);
-
-    try {
-      const payload = formToJSON(form);
-      // Expecting fields: { email, password }
-      const data = await apiFetch(ENDPOINTS.login, { method: "POST", body: payload });
-
-      const token = data?.token;
-      const profile = data?.user || data?.profile || {};
-      if (token) saveToken(token);
-      if (profile) cacheProfile(profile);
-
-      toast("Logged in successfully.", "success");
-      location.href = "index.html";
-    } catch (err) {
-      if (errBox) errBox.textContent = err.message;
-      toast(err.message, "error");
-    } finally {
-      submitBtn && (submitBtn.disabled = false);
+    const name = document.getElementById("signup-name").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value;
+    try{
+      const { token, user } = await apiSignup({ name, email, password });
+      if(!token) throw new Error("No token returned");
+      saveToken(token);
+      if(user) saveProfile(user);
+      toast("Account created!");
+      location.href = "dashboard.html";
+    }catch(err){
+      toast(err.message || "Signup failed");
     }
   });
 }
 
-// Profile (profile.html)
-async function initProfile() {
-  // This page should be gated
-  requireAuth();
+async function initDashboard(){
+  if(!requireAuth()) return;
 
-  const nameEl = byId("profileName");
-  const emailEl = byId("profileEmail");
-  const idEl = byId("profileId");
-
-  // Paint from cache first (snappy)
-  const cached = getCachedProfile();
-  if (cached?.name) setText(nameEl, cached.name);
-  if (cached?.email) setText(emailEl, cached.email);
-  if (cached?._id || cached?.id) setText(idEl, cached._id || cached.id);
-
-  try {
-    const me = await apiFetch(ENDPOINTS.me);
-    if (me) {
-      setText(nameEl, me.name || "");
-      setText(emailEl, me.email || "");
-      setText(idEl, me._id || me.id || "");
-      cacheProfile(me);
-    }
-  } catch (err) {
-    toast("Could not load profile.", "error");
-  }
-}
-
-// Example: a protected page that lists resources (optional)
-// listings.html
-async function initListings() {
-  // requireAuth plus graceful fallback
-  if (!isAuthed()) return; // already redirected by requireAuth() during boot
-
-  const listEl = byId("listings");
-  if (!listEl) return;
-
-  // Adjust endpoint if/when you add it to the backend, e.g. /api/listings
-  const ENDPOINT_LIST = "/api/listings";
-
-  try {
-    const data = await apiFetch(ENDPOINT_LIST);
-    if (!Array.isArray(data)) {
-      setHTML(listEl, "<p>No data available.</p>");
+  // Try cached profile first
+  let profile = getProfile();
+  if(!profile){
+    try{
+      profile = await apiMe();
+      saveProfile(profile);
+    }catch(err){
+      // apiMe will already handle 401 → logout
       return;
     }
-    if (!data.length) {
-      setHTML(listEl, "<p>No listings yet.</p>");
-      return;
-    }
-    const rows = data
-      .map((it) => {
-        const name = it.name || it.title || "Untitled";
-        const price = it.price != null ? `$${it.price}` : "-";
-        const loc = it.location || it.suburb || "";
-        return `<li><strong>${name}</strong> — ${price} ${loc ? `• ${loc}` : ""}</li>`;
-      })
-      .join("");
-    setHTML(listEl, `<ul>${rows}</ul>`);
-  } catch (err) {
-    setHTML(listEl, `<p class="error">Failed to load listings: ${err.message}</p>`);
   }
+
+  // Greeting + account panel
+  const name = profile?.name || "there";
+  const email = profile?.email || "—";
+  const g = document.getElementById("greeting");
+  const iName = document.getElementById("info-name");
+  const iEmail = document.getElementById("info-email");
+  if(g) g.textContent = name;
+  if(iName) iName.textContent = name;
+  if(iEmail) iEmail.textContent = email;
+
+  // Demo KPI values (replace with real endpoints if you have them)
+  setText("kpi-listings", "128");
+  setText("kpi-avg-rent", "620");
+  setText("kpi-preds", "42");
+
+  // Simple canvas placeholder (keeps vanilla)
+  drawChartPlaceholder();
 }
 
-// ===== Boot =====
-document.addEventListener("DOMContentLoaded", async () => {
-  // Guard non-public pages before doing anything else
-  requireAuth();
+function setText(id, v){
+  const el = document.getElementById(id);
+  if(el) el.textContent = v;
+}
 
-  // Setup nav visibility and logout
-  initNav();
-
-  // Basic route by pathname
-  const path = location.pathname;
-
-  try {
-    if (path.endsWith("/") || path.endsWith("/index.html") || path.endsWith("index.html")) {
-      await initIndex();
-    } else if (path.endsWith("signup.html")) {
-      initSignup();
-    } else if (path.endsWith("login.html")) {
-      initLogin();
-    } else if (path.endsWith("profile.html")) {
-      await initProfile();
-    } else if (path.endsWith("listings.html")) {
-      await initListings();
-    } else {
-      // Unknown page: do nothing, but still keep nav state correct
-    }
-  } catch (err) {
-    // Catch any uncaught init errors per page
-    console.error(err);
-    toast(err.message || "Something went wrong on this page.", "error");
+function drawChartPlaceholder(){
+  const c = document.getElementById("chart");
+  if(!c) return;
+  const ctx = c.getContext("2d");
+  const w = c.width, h = c.height;
+  ctx.clearRect(0,0,w,h);
+  // axes
+  ctx.strokeStyle = "#e5e7eb";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(40, 20); ctx.lineTo(40, h-30); ctx.lineTo(w-20, h-30);
+  ctx.stroke();
+  // line
+  ctx.strokeStyle = "#2563eb";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  const pts = [0, 12, 5, 18, 10, 14, 15, 22, 20, 16, 25, 27, 30, 24, 35, 29, 40, 33, 45, 31, 50, 37];
+  for(let i=0;i<pts.length;i+=2){
+    const x = 40 + (pts[i] / 50) * (w-60);
+    const y = (h-30) - (pts[i+1] / 40) * (h-60);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
   }
+  ctx.stroke();
+}
+
+// ---- Bootstrap ----
+document.addEventListener("DOMContentLoaded", () => {
+  renderNav();
+  bindLogoutButtons();
+
+  const page = getPage();
+  if(page === "home") initHome();
+  if(page === "login") bindLogin();
+  if(page === "signup") bindSignup();
+  if(page === "dashboard") initDashboard();
 });
-
-// ===== Optional: expose for debugging in console =====
-window.__app = {
-  apiFetch,
-  logout,
-  isAuthed,
-  getToken,
-};
