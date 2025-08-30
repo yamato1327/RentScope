@@ -2,31 +2,52 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>RentScope • Sign in</title>
+  <title>RentScope • Home</title>
   <link rel="icon" href="./logo.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="card" role="main" aria-labelledby="title">
-    <div class="brand">
-      <img src="./logo.png" alt="RentScope logo" />
-      <h1 id="title">RentScope</h1>
+  <nav class="site-nav">
+    <div class="nav-left">
+      <div class="brand">
+        <img src="./logo.png" alt="RentScope logo" />
+        <span class="brand-name">RentScope</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="predict.html?mode=market">Accommodation</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <!-- show when logged OUT -->
+      <a class="btn btn-ghost small" href="login.html" id="navSignIn">Sign in</a>
+      <!-- show when logged IN -->
+      <span id="navUser" class="muted" style="display:none"></span>
+      <button id="navLogout" class="btn btn-ghost small" style="display:none">Logout</button>
+    </div>
+  </nav>
+
+  <section class="hero hero-animated">
+    <div class="hero-left">
+      <h1 class="hero-title">RentScope</h1>
+      <p class="hero-sub">Predict rent hikes, plan savings, and stay secure with suburb-level insights for Western Australia.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="ctaGetStarted">Get started</button>
+        <a class="btn btn-ghost" id="ctaBrowse" href="predict.html?mode=market">Browse accommodation</a>
+      </div>
     </div>
 
-    <h2>Sign in</h2>
-    <form id="loginForm" novalidate>
-      <label for="liEmail">Email address</label>
-      <input type="email" id="liEmail" placeholder="you@example.com" required />
-      <label for="liPassword">Password</label>
-      <input type="password" id="liPassword" placeholder="••••••••" required />
-      <button type="submit" class="btn btn-primary">Continue</button>
-    </form>
-    <p id="liMsg" class="msg"></p>
-
-    <p class="muted">Don’t have an account? <a href="./signup.html">Create account</a></p>
-    <hr class="sep" />
-    <button id="demoBtn" class="btn btn-ghost">Continue as demo user</button>
-  </main>
+    <div class="hero-card">
+      <div class="tile-title">Plan</div>
+      <h3 style="margin:6px 0 8px">Affordability made clear</h3>
+      <p class="muted">Track rent as a share of income and set weekly savings toward expected changes.</p>
+      <div class="tiles">
+        <div class="tile"><div class="tile-title">Next increase</div><div class="tile-value">12 Feb 2026</div></div>
+        <div class="tile"><div class="tile-title">Projected rent</div><div class="tile-value">$525 / wk</div></div>
+        <div class="tile"><div class="tile-title">Confidence</div><div class="tile-value">92%</div></div>
+      </div>
+    </div>
+  </section>
 
   <script src="app.js"></script>
 </body>
