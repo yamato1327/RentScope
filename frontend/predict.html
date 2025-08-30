@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Predict • RentScope</title>
+  <link rel="icon" href="./logo.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="./logo.png" alt="RentScope logo" />
+      <span class="brand-name">RentScope · Perth</span>
+    </div>
+    <button id="logoutBtn" class="btn btn-ghost small">Logout</button>
+  </header>
+
+  <div class="layout">
+    <!-- LEFT: Your details -->
+    <aside class="panel">
+      <h3>Your details</h3>
+
+      <label for="rent">Current rent (per week)</label>
+      <input type="number" id="rent" min="50" max="3000" placeholder="$ 500" required />
+
+      <label for="suburb">Suburb</label>
+      <input list="subs" id="suburb" placeholder="Nedlands" required />
+      <datalist id="subs">
+        <option value="Nedlands"></option>
+        <option value="Canning Vale"></option>
+        <option value="Bentley"></option>
+      </datalist>
+      <p class="muted">Known suburbs have tuned priors; others use a rooms-based heuristic.</p>
+
+      <label for="bedrooms">Bedrooms</label>
+      <input type="number" id="bedrooms" min="0" max="10" placeholder="3" />
+
+      <label for="landlord">Landlord type</label>
+      <select id="landlord">
+        <option>Private</option>
+        <option>Agency</option>
+        <option>Community housing</option>
+        <option>Government</option>
+      </select>
+
+      <label for="reviewed">Last reviewed</label>
+      <input type="date" id="reviewed" />
+
+      <label for="income">Weekly household income (optional)</label>
+      <input type="number" id="income" placeholder="e.g., 1800" />
+
+      <label for="benchmark">Customise market benchmark (+ pp)</label>
+      <input type="range" id="benchmark" min="-2" max="2" step="0.1" value="0" />
+      <div class="muted" id="benchmarkVal">0.0 pp</div>
+
+      <form id="predictForm" style="margin-top:10px">
+        <button type="submit" class="btn btn-primary">See forecast</button>
+      </form>
+
+      <div class="sep"></div>
+      <div class="muted">Mode: <span id="modeTag">—</span></div>
+    </aside>
+
+    <!-- RIGHT: Intro / empty state -->
+    <main class="panel">
+      <h3>Prediction</h3>
+      <p class="muted">Fill your details then click <em>See forecast</em>. On the next screen you’ll get increase cadence, next increase amount, review window, price check, tips, and nearby alternatives.</p>
+      <ul class="muted">
+        <li>Annualised increase & review cadence</li>
+        <li>Next increase estimate & confidence</li>
+        <li>Fair price check vs suburb benchmark</li>
+        <li>Alternatives with median rent & listings</li>
+      </ul>
+    </main>
+  </div>
+
+  <script>
+    // show slider value + mode tag
+    const b = document.getElementById('benchmark');
+    const bv = document.getElementById('benchmarkVal');
+    if (b && bv) b.addEventListener('input', ()=> bv.textContent = `${Number(b.value).toFixed(1)} pp`);
+    const modeTag = document.getElementById('modeTag');
+    const params = new URLSearchParams(location.search);
+    const mode = params.get('mode') || 'market';
+    if (modeTag) modeTag.textContent = mode === 'myrent' ? 'My rent' : 'Market';
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

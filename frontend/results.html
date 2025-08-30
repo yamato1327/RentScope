@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Results • RentScope</title>
+  <link rel="icon" href="./logo.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="./logo.png" alt="RentScope logo" />
+      <span class="brand-name">RentScope · Perth</span>
+    </div>
+    <button onclick="location.href='predict.html'" class="btn btn-ghost small">New check</button>
+  </header>
+
+  <div class="layout">
+    <!-- LEFT: echo user details -->
+    <aside class="panel" id="userPanel">
+      <h3>Your details</h3>
+      <div class="kv"><span>Current rent</span><strong id="uRent">$—</strong></div>
+      <div class="kv"><span>Suburb</span><strong id="uSuburb">—</strong></div>
+      <div class="kv"><span>Bedrooms</span><strong id="uBed">—</strong></div>
+      <div class="kv"><span>Landlord</span><strong id="uLandlord">—</strong></div>
+      <div class="kv"><span>Last reviewed</span><strong id="uReviewed">—</strong></div>
+      <div class="kv"><span>Income (wk)</span><strong id="uIncome">—</strong></div>
+      <div class="kv"><span>Benchmark adj.</span><strong id="uBench">0.0 pp</strong></div>
+
+      <div class="callout neutral" style="margin-top:12px">
+        <strong>Note</strong>
+        <p>This UI is a demo. Values are fixtures unless your API is connected.</p>
+      </div>
+    </aside>
+
+    <!-- RIGHT: prediction -->
+    <main class="panel">
+      <div class="header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h3>Prediction</h3>
+        <div class="asof muted" id="asOf">As of —</div>
+      </div>
+
+      <div class="tiles">
+        <div class="tile">
+          <div class="tile-title">ANNUALISED INCREASE</div>
+          <div class="tile-value" id="tAnnual">—%</div>
+          <div class="tile-sub" id="tCadence">Cadence —</div>
+        </div>
+        <div class="tile">
+          <div class="tile-title">NEXT INCREASE (PRO-RATA)</div>
+          <div class="tile-value" id="tNext">$—/wk</div>
+          <div class="tile-sub" id="tProj">Projected weekly rent —</div>
+        </div>
+        <div class="tile">
+          <div class="tile-title">LIKELY REVIEW WINDOW</div>
+          <div class="tile-value" id="tWindow">—</div>
+          <div class="tile-sub" id="tWindowDate">Around —</div>
+        </div>
+      </div>
+
+      <div class="callout info" id="contextText">
+        Context: University & hospital proximity keeps demand firm.
+      </div>
+
+      <div class="callout ok" id="priceCheck">Fair price check — filled by script</div>
+      <div class="callout tip" id="savingsTip">Savings tip — filled by script</div>
+      <div class="callout neutral" id="seasonalTip">Seasonal utility costs — filled by script</div>
+
+      <h4 style="margin-top:18px;margin-bottom:8px">Nearby alternatives</h4>
+      <div class="alt-grid" id="altsContainer"></div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

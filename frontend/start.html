@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Get started • RentScope</title>
+  <link rel="icon" href="./logo.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="nav-left">
+      <div class="brand">
+        <img src="./logo.png" alt="RentScope logo" />
+        <span class="brand-name">RentScope</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <button id="logoutBtn" class="btn btn-ghost small">Logout</button>
+    </div>
+  </nav>
+
+  <main class="card" style="max-width:720px;">
+    <h2>What would you like to do?</h2>
+    <p class="muted">Pick one to continue. You can switch anytime.</p>
+
+    <div class="btn-pair">
+      <a href="#" id="chooseMarket" class="btn btn-primary btn-xl">
+        Find rental properties with the predictor →
+        <div class="muted" style="font-weight:400;margin-top:4px;font-size:14px">
+          Explore suburbs, see typical rent paths, and browse alternatives.
+        </div>
+      </a>
+      <a href="#" id="chooseMine" class="btn btn-ghost btn-xl">
+        Check my current rent & forecast →
+        <div class="muted" style="font-weight:400;margin-top:4px;font-size:14px">
+          Enter your rent and lease details to predict increases and timing.
+        </div>
+      </a>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

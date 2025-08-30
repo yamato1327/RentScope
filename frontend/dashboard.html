@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Dashboard • RentScope</title>
+  <link rel="icon" href="./logo.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="nav-left">
+      <div class="brand">
+        <img src="./logo.png" alt="RentScope logo" />
+        <span class="brand-name">RentScope</span>
+      </div>
+      <ul class="nav-links">
+        <li><a class="active" href="dashboard.html">Dashboard</a></li>
+        <li><a href="predict.html">Accommodation</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button id="logoutBtn" class="btn btn-ghost small">Logout</button>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <section class="panel">
+      <h3 id="welcomeTitle">Welcome</h3>
+      <p class="muted" id="welcomeSub">Personalised view</p>
+
+      <div class="grid-2">
+        <div><label>Display name</label><input id="displayName" placeholder="Alex" /></div>
+        <div><label>Preferred suburb</label><input id="prefSuburb" placeholder="Nedlands" /></div>
+      </div>
+
+      <div class="tiles">
+        <div class="tile"><div class="tile-title">Next increase</div><div class="tile-value" id="statNext">—</div></div>
+        <div class="tile"><div class="tile-title">Projected rent</div><div class="tile-value" id="statProj">—</div></div>
+        <div class="tile"><div class="tile-title">Confidence</div><div class="tile-value" id="statConf">—</div></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h3>Latest update</h3>
+      <p class="muted">Auto generated from your inputs</p>
+      <div class="callout neutral" id="latestMsg">No strong red flags based on current inputs.</div>
+    </aside>
+
+    <section class="panel">
+      <h3>Inputs</h3>
+      <div class="grid-2">
+        <div><label>Weekly rent ($)</label><input type="number" id="inpRent" placeholder="500" /></div>
+        <div><label>Weekly income ($)</label><input type="number" id="inpIncome" placeholder="1500" /></div>
+        <div><label>Lease start</label><input type="date" id="inpLeaseStart" /></div>
+        <div>
+          <label>Landlord type</label>
+          <select id="inpLandlord">
+            <option>Agency</option><option>Private</option><option>Community housing</option><option>Government</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Overpay threshold</label>
+      <input type="range" id="inpThreshold" min="0" max="30" step="1" value="8" />
+      <div class="muted"><span id="thresholdVal">8</span>%</div>
+
+      <button id="seeRecs" class="btn btn-primary" style="margin-top:10px">See recommendations</button>
+      <canvas id="forecastChart" width="900" height="320" style="width:100%;max-width:100%;margin-top:12px"></canvas>
+      <div class="muted" style="margin-top:8px"><span style="margin-right:16px">🟢 Affordability ratio</span><span>🔵 Weekly rent ($)</span></div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

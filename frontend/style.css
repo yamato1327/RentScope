@@ -1,0 +1,140 @@
+/* ====== RentScope theme ====== */
+:root{
+  --ink:#555358;          /* headings, strong text */
+  --steel:#5F6062;        /* labels, helpers, borders */
+  --eggshell:#F2ECE1;     /* page background */
+  --primary:#C6CA53;      /* main CTA */
+  --primary-600:#B3B747;  /* hover */
+  --mint:#C9DCB3;         /* subtle highlights / secondary */
+  --white:#ffffff;
+  --border:#e9e4d8;
+  --shadow:0 10px 30px rgba(0,0,0,.08);
+  --radius:14px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--ink);
+  background:var(--eggshell);
+}
+
+/* Navbar */
+.site-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 16px;background:#fff;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:10
+}
+.nav-left{display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{width:32px;height:32px;object-fit:contain}
+.brand .brand-name{font-weight:700}
+.nav-links{list-style:none;display:flex;gap:16px;margin:0;padding:0}
+.nav-links a{color:var(--ink);text-decoration:none;padding:6px 8px;border-radius:10px}
+.nav-links a:hover,.nav-links a.active{background:#f7f4ec}
+.nav-right{display:flex;align-items:center;gap:10px}
+
+/* Buttons */
+button,.btn{
+  width:100%;padding:12px 14px;margin-top:8px;border-radius:12px;border:1px solid transparent;
+  font-weight:600;cursor:pointer;transition:.15s ease;background:var(--white);color:var(--ink)
+}
+.btn-primary{background:var(--primary);color:#1b1b1b}
+.btn-primary:hover{background:var(--primary-600)}
+.btn-ghost{background:#fff;border-color:#D3D0C8}
+.btn-ghost:hover{background:#f7f4ec}
+.small{width:auto;padding:8px 12px}
+a.btn{text-decoration:none;display:inline-block}
+
+/* Links */
+a{color:#3b5f0a;text-decoration:underline}
+a:hover{opacity:.9}
+
+/* Card + layout */
+.card{
+  width:min(520px, 92vw);margin:48px auto;padding:28px 24px;
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)
+}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:#fff;border-bottom:1px solid var(--border)
+}
+.sep{border:0;border-top:1px solid var(--border);margin:16px 0}
+
+/* Forms */
+label{display:block;color:var(--steel);font-size:14px;margin:8px 0 6px}
+input,select{
+  width:100%;padding:12px 14px;margin:6px 0 12px;border:1px solid #D3D0C8;border-radius:12px;background:#fff;
+  font-size:16px;color:var(--ink)
+}
+input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(198,202,83,.25)}
+.msg{min-height:20px;margin:6px 0 0;color:#3b5f0a}
+.muted{color:var(--steel);font-size:14px}
+
+/* Hero */
+.hero{max-width:1200px;margin:24px auto;display:grid;grid-template-columns:1.1fr .9fr;gap:22px;padding:0 16px}
+.hero-left{padding:10px}
+.hero-title{font-size:56px;margin:10px 0 8px}
+.hero-sub{color:var(--steel);max-width:560px}
+.hero-actions{display:flex;gap:10px;margin:16px 0 8px}
+.hero-card{background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:18px}
+
+/* Optional animated gradient */
+.hero-animated{
+  position: relative;border-radius:18px;
+  background: radial-gradient(1200px 800px at 20% 20%, rgba(201,220,179,.55), transparent 60%),
+              radial-gradient(1000px 700px at 80% 10%, rgba(198,202,83,.30), transparent 60%),
+              linear-gradient(160deg, #F2ECE1 0%, #ffffff 40%, #C9DCB3 100%);
+  background-size: 160% 160%, 160% 160%, 200% 200%;
+  animation: heroGradient 22s ease-in-out infinite;
+  padding: 24px 16px;
+}
+@keyframes heroGradient{
+  0%{background-position:0% 50%, 100% 0%, 0% 50%}
+  50%{background-position:100% 50%, 0% 100%, 100% 50%}
+  100%{background-position:0% 50%, 100% 0%, 0% 50%}
+}
+@media (prefers-reduced-motion: reduce){ .hero-animated{animation:none;background-size:100% 100%} }
+
+/* Grid panels (predict/results/dashboard) */
+.layout{max-width:1200px;margin:24px auto;display:grid;gap:18px;grid-template-columns:320px 1fr;padding:0 16px}
+.panel{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:18px}
+.panel h3{margin:0 0 10px}
+
+/* Key-value rows */
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1eee6}
+.kv:last-child{border-bottom:0}
+
+/* Tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:10px 0}
+.tile{border:1px solid var(--border);border-radius:12px;padding:14px;background:#fff}
+.tile-title{color:var(--steel);font-size:12px;letter-spacing:.3px;margin-bottom:6px}
+.tile-value{font-size:22px;font-weight:700;margin-bottom:4px}
+.tile-sub{color:var(--steel);font-size:13px}
+
+/* Callouts */
+.callout{border-radius:12px;padding:12px 14px;margin:10px 0;border:1px solid var(--border)}
+.callout.info{background:#f2f9ff;border-color:#d9ecff}
+.callout.ok{background:#eefaf2;border-color:#d5f2dd}
+.callout.tip{background:#eef2ff;border-color:#d8defc}
+.callout.neutral{background:#f6f7f8;border-color:#e6e7e8}
+
+/* Alternatives cards */
+.alt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.alt-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--mint);color:#1b1b1b;font-size:12px;margin-left:6px;border:1px solid #b9d4a3}
+.alt-card h5{margin:0 0 6px}
+.alt-meta{color:var(--steel);font-size:13px;margin-bottom:6px}
+.listings{margin:8px 0 0 16px;padding:0}
+.listings li{margin:3px 0}
+
+/* Choice page */
+.btn-pair{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+@media (min-width:700px){ .btn-pair{grid-template-columns:1fr 1fr} }
+.btn-xl{padding:16px 18px;font-size:16px;text-align:left}
+
+/* Utility grids */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
