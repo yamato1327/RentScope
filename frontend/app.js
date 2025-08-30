@@ -1,6 +1,6 @@
 // ---- Config ----
-const API_BASE = "http://localhost:4000"; // change to tunnel/Render URL when sharing
-
+// const API_BASE = "http://localhost:4000"; // change to tunnel/Render URL when sharing
+const API_BASE = "https://rentscope-backend.onrender.com";
 // ---- Token helpers ----
 function saveToken(t){ localStorage.setItem("token", t) }
 function getToken(){ return localStorage.getItem("token") }
