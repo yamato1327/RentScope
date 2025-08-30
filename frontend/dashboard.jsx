@@ -127,7 +127,7 @@ function MiniMetric({ label, value, Icon }){
   );
 }
 
-export function RentScopeDashboard(){
+function RentScopeDashboard(){
   // today is fixed for a stable demo
   const today = useMemo(()=> new Date("2025-08-29T12:00:00+08:00"),[]);
   // state
@@ -449,5 +449,5 @@ export function RentScopeDashboard(){
   );
 }
 
-// Default export for React.createElement above
-const RentScopeDashboard = RentScopeDashboard;
+// Make the component available on window so dashboard.html can render it
+window.RentScopeDashboard = RentScopeDashboard;
